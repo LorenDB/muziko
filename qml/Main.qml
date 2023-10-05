@@ -18,11 +18,32 @@ ApplicationWindow {
             anchors.fill: parent
             spacing: 10
 
+//            ToolButton { text: "H" }
+
             Item { Layout.fillWidth: true }
 
-            Label { text: Muziko.model.instrument }
+            Label { text: Muziko.songs.instrument }
 
             Item { Layout.fillWidth: true }
         }
+    }
+
+    Component {
+        id: songsPage
+
+        SongsPage {}
+    }
+
+    Component {
+        id: addSongPage
+
+        AddSongPage {}
+    }
+
+    StackView {
+        id: stack
+
+        anchors.fill: parent
+        initialItem: songsPage
     }
 }
