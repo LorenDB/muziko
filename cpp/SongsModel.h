@@ -2,6 +2,7 @@
 
 #include <QAbstractListModel>
 #include <QQmlEngine>
+#include <QDateTime>
 
 enum class Proficiency
 {
