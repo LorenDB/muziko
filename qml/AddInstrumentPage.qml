@@ -16,7 +16,7 @@ Page {
         columnSpacing: 10
 
         Label {
-            text: qsTr("Song name")
+            text: qsTr("Instrument name")
         }
 
         TextField {
@@ -24,21 +24,7 @@ Page {
 
             Layout.alignment: Qt.AlignRight
             Layout.preferredWidth: parent.width * 0.6
-            placeholderText: qsTr("Song name")
-        }
-
-        Label {
-            text: qsTr("Your current skill level")
-        }
-
-        Slider {
-            id: proficiency
-
-            from: 0
-            to: 2
-            stepSize: 1
-            snapMode: Slider.SnapAlways
-            Layout.alignment: Qt.AlignRight
+            placeholderText: qsTr("Instrument name")
         }
 
         Item {
@@ -53,16 +39,17 @@ Page {
             Item { Layout.fillWidth: true }
 
             Button {
-                enabled: name.text !== ""
+                enabled: name.text !== "" && !Muziko.alreadyHasInstrument(name.text)
                 text: qsTr("OK")
                 onClicked: {
-                    Muziko.songs.addSong(name.text, proficiency.value)
+                    Muziko.addInstrument(name.text);
                     stack.pop();
                 }
             }
 
             Button {
                 text: qsTr("Cancel")
+                visible: Muziko.songs != null
                 onClicked: stack.pop()
             }
         }

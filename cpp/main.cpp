@@ -4,7 +4,6 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQuickStyle>
 
 int main(int argc, char *argv[])
 {
@@ -20,7 +19,7 @@ int main(int argc, char *argv[])
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,
         &app,
-        []() { QCoreApplication::exit(-1); },
+        [] { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.loadFromModule("dev.lorendb.muziko", "Main");
 

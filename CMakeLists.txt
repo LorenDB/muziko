@@ -9,17 +9,18 @@ project(muziko VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick QuickControls2)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Qml Quick QuickControls2)
 qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(muziko cpp/main.cpp)
 qt_add_qml_module(muziko
     URI dev.lorendb.muziko
     VERSION 1.0
-    NO_RESOURCE_TARGET_PATH
-    RESOURCE_PREFIX "/"
+#    NO_RESOURCE_TARGET_PATH
     QML_FILES
+        qml/AddInstrumentPage.qml
         qml/AddSongPage.qml
+        qml/EditSongPage.qml
         qml/Main.qml
         qml/SongsPage.qml
     SOURCES
@@ -29,19 +30,25 @@ qt_add_qml_module(muziko
         cpp/SongsModel.h
     RESOURCES
         qtquickcontrols2.conf
+        qml/icons/add.svg
+        qml/icons/delete.svg
+        qml/icons/done.svg
+        qml/icons/edit.svg
+        qml/icons/menu.svg
+        qml/icons/settings.svg
+
 )
 
 target_include_directories(muziko PRIVATE cpp)
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
 set_target_properties(muziko PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER dev.lorendb.muziko
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+    QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/
+    QT_ANDROID_TARGET_SDK_VERSION 33
 )
 
 target_link_libraries(muziko PRIVATE

@@ -9,6 +9,6 @@
 
 set -eu
 
-FILES=$(find cpp qml rs -type f \( -iname "*.cpp" -o -iname "*.h" -o -iname "*.qml" -o -iname "*.rs" \))
+FILES=$(find cpp qml -type f \( -iname "*.cpp" -o -iname "*.h" -o -iname "*.qml" -o -iname "*.rs" \))
 reuse annotate --exclude-year --copyright="Loren Burkholder" --license="GPL-3.0" $FILES
 git diff --exit-code
