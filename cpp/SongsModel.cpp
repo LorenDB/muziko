@@ -258,8 +258,9 @@ void SongsFilterModel::rebuildMappings()
 
     auto low = sortedSongs;
     low.removeIf([&getPracticeDate](Song *song) {
+        auto date = getPracticeDate(song);
         return song->proficiency() != Song::LowProficiency ||
-               getPracticeDate(song).daysTo(QDateTime::currentDateTime()) <= 0;
+               (date.isValid() && date.daysTo(QDateTime::currentDateTime()) <= 0);
     });
 
     int minDaysSinceMedPractice;
@@ -269,8 +270,9 @@ void SongsFilterModel::rebuildMappings()
         minDaysSinceMedPractice = 3;
     auto med = sortedSongs;
     med.removeIf([&minDaysSinceMedPractice, &getPracticeDate](Song *song) {
+        auto date = getPracticeDate(song);
         return song->proficiency() != Song::MediumProficiency ||
-               getPracticeDate(song).daysTo(QDateTime::currentDateTime()) < minDaysSinceMedPractice;
+               (date.isValid() && date.daysTo(QDateTime::currentDateTime()) < minDaysSinceMedPractice);
     });
 
     auto high = sortedSongs;
@@ -284,22 +286,31 @@ void SongsFilterModel::rebuildMappings()
                                                               m_dailySetSize - low.size() - med.size(),
                                    high.size());
         for (int i = 0; i < numToAppend; ++i)
-            if (high[i]->lastPracticed().daysTo(QDateTime::currentDateTime()) > 0)
+        {
+            const auto &lp = high[i]->lastPracticed();
+            if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) > 0)
                 m_mappings.append(m_model->songs().indexOf(high[i]));
+        }
     }
 
     if (med.size() > 0)
     {
         int numToAppend = isDailySetSizeOverflowed ? m_dailySetSize / 5 : med.size();
         for (int i = numToAppend - 1; i >= 0; --i)
-            if (med[i]->lastPracticed().daysTo(QDateTime::currentDateTime()) >= minDaysSinceMedPractice)
+        {
+            const auto &lp = med[i]->lastPracticed();
+            if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) >= minDaysSinceMedPractice)
                 m_mappings.prepend(m_model->songs().indexOf(med[i]));
+        }
     }
 
     if (low.size() > 0)
         for (int i = std::min(low.size(), m_dailySetSize - m_mappings.size()) - 1; i >= 0; --i)
-            if (low[i]->lastPracticed().daysTo(QDateTime::currentDateTime()) > 0)
+        {
+            const auto &lp = low[i]->lastPracticed();
+            if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) > 0)
                 m_mappings.prepend(m_model->songs().indexOf(low[i]));
+        }
 
     for (const auto i : m_mappings)
         m_model->songs()[i]->setPartOfTodaysSet(QDate::currentDate());
