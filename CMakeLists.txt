@@ -53,6 +53,26 @@ set_target_properties(muziko PROPERTIES
     QT_ANDROID_TARGET_SDK_VERSION 33
 )
 
+if(ANDROID)
+    # This makes Android builds have unique versions for each architecture.
+    # Taken from https://16bpp.net/blog/post/making-a-cross-platform-mobile-desktop-app-with-qt-62/
+    # Figure out the platform & architecture code we need
+    set(ANDROID_PLATFORM_ARCHITECTURE_CODE "xxx")
+    if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
+      set(ANDROID_PLATFORM_ARCHITECTURE_CODE "032")
+    elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
+      set(ANDROID_PLATFORM_ARCHITECTURE_CODE "064")
+    elseif (${ANDROID_ABI} STREQUAL "x86")
+      set(ANDROID_PLATFORM_ARCHITECTURE_CODE "132")
+    elseif (${ANDROID_ABI} STREQUAL "x86_64")
+      set(ANDROID_PLATFORM_ARCHITECTURE_CODE "164")
+    endif()
+
+    # Slap the above together with a version code (major and minor only)
+    set(ANDROID_VERSION_CODE "${ANDROID_PLATFORM_ARCHITECTURE_CODE}${PROJECT_VERSION_MAJOR}${PROJECT_VERSION_MINOR}")
+    set_property(TARGET muziko APPEND PROPERTY QT_ANDROID_VERSION_CODE ${ANDROID_VERSION_CODE})
+endif()
+
 target_link_libraries(muziko PRIVATE
     Qt::Quick
     Qt::QuickControls2
