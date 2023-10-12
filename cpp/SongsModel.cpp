@@ -35,8 +35,25 @@ void Song::setLastPracticed(const QDateTime &newLastPracticed)
 {
     if (m_lastPracticed == newLastPracticed)
         return;
+    setPracticeBeforeLast(m_lastPracticed);
     m_lastPracticed = newLastPracticed;
     emit lastPracticedChanged();
+}
+
+void Song::setPracticeBeforeLast(const QDateTime &newDateTime)
+{
+    if (m_practiceBeforeLast == newDateTime)
+        return;
+    m_practiceBeforeLast = newDateTime;
+    emit practiceBeforeLastChanged();
+}
+
+void Song::setPartOfTodaysSet(const QDate &day)
+{
+    if (m_partOfTodaysSet == day)
+        return;
+    m_partOfTodaysSet = day;
+    emit partOfTodaysSetChanged();
 }
 
 void Song::markAsPracticedToday()
@@ -113,7 +130,6 @@ QHash<int, QByteArray> SongsModel::roleNames() const
     return {{Roles::Name, "name"},
             {Roles::LastPracticed, "lastPracticed"},
             {Roles::ProficiencyValue, "proficiency"},
-            {Roles::ProficiencyString, "proficiencyString"},
             {Roles::SongObject, "song"}};
 }
 
@@ -130,7 +146,6 @@ QVariant SongsModel::data(const QModelIndex &index, int role) const
         return m_songs[index.row()]->lastPracticed();
     case Roles::ProficiencyValue:
         return m_songs[index.row()]->proficiency();
-    case Roles::ProficiencyString:
     case Roles::SongObject:
         return QVariant::fromValue(m_songs[index.row()]);
     default:
@@ -139,27 +154,155 @@ QVariant SongsModel::data(const QModelIndex &index, int role) const
 }
 
 SongsFilterModel::SongsFilterModel(SongsModel *parent)
-    : QSortFilterProxyModel{parent},
+    : QAbstractProxyModel{parent},
       m_model{parent}
 {
     setSourceModel(parent);
-    sort(0);
+    rebuildMappings();
+
+    connect(parent, &SongsModel::rowsInserted, this, [this](const QModelIndex &, int first, int last) {
+        // TODO: this should be handled with dataChanged() and should possibly insert the new songs into the current
+        // practice list if they qualify (e.g. a low proficiency song)
+        beginResetModel();
+        const auto offset = last - first;
+        for (int i = 0; i < m_mappings.size(); ++i)
+        {
+            auto &idx = m_mappings[i];
+            if (idx >= first)
+                idx += offset;
+        }
+        endResetModel();
+    });
+
+    connect(parent, &SongsModel::rowsRemoved, this, [this](const QModelIndex &, int first, int last) {
+        // TODO: this should be handled with dataChanged() and/or beginRemoveRows() and should also queue up replacements for
+        // songs that needed practiced today
+        beginResetModel();
+        const auto offset = last - first + 1;
+        QList<int> toRemove;
+        for (int i = 0; i < m_mappings.size(); ++i)
+        {
+            auto &idx = m_mappings[i];
+            if (idx >= first && idx <= last)
+                toRemove.push_back(i);
+            else if (idx > last)
+                idx -= offset;
+        }
+
+        // reverse iteration prevents keys from being offset and messing up the remove operation
+        for (int i = toRemove.size() - 1; i >= 0; --i)
+            m_mappings.remove(toRemove[i]);
+        endResetModel();
+    });
+
+    // TODO: build some sort of elegant handler for this? It *should* be possible to handle songs that have been marked as
+    // done without requiring a complete model reset and mapping recalculation
+    connect(parent, &SongsModel::dataChanged, this, &SongsFilterModel::rebuildMappings);
 }
 
-bool SongsFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+QModelIndex SongsFilterModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
-    const auto &leftSong = m_model->songs()[left.row()];
-    const auto &rightSong = m_model->songs()[right.row()];
-
-    if (leftSong->proficiency() == Song::LowProficiency && rightSong->proficiency() != Song::LowProficiency)
-        return true;
-
-    return leftSong->lastPracticed() < rightSong->lastPracticed() || leftSong->proficiency() < rightSong->proficiency() ||
-           leftSong->name() < rightSong->name();
+    for (int i = 0; i < m_mappings.size(); ++i)
+        if (m_mappings[i] == sourceIndex.row())
+            return index(i, sourceIndex.column(), sourceIndex.parent());
+    return {};
 }
 
-bool SongsFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+QModelIndex SongsFilterModel::mapToSource(const QModelIndex &proxyIndex) const
 {
-    const auto &lp = m_model->songs()[row]->lastPracticed();
-    return lp.date() < QDate::currentDate() || !lp.isValid();
+    if (proxyIndex.row() >= 0 && proxyIndex.row() < m_mappings.size())
+        return index(m_mappings[proxyIndex.row()], proxyIndex.column(), proxyIndex.parent());
+    return {};
+}
+
+QModelIndex SongsFilterModel::index(int row, int column, const QModelIndex &) const
+{
+    return createIndex(row, column);
+}
+
+QModelIndex SongsFilterModel::parent(const QModelIndex &) const
+{
+    return {};
+}
+
+int SongsFilterModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return m_mappings.size();
+}
+
+int SongsFilterModel::columnCount(const QModelIndex &) const
+{
+    return 1;
+}
+
+void SongsFilterModel::rebuildMappings()
+{
+    beginResetModel();
+
+    m_mappings.clear();
+
+    // if the user practiced this song earlier today as part of a set, we want to temporarily include that in the list so
+    // we don't spam new songs on the list infinitely
+    auto getPracticeDate = [](Song *song) {
+        return (song->partOfTodaysSet() == QDate::currentDate() && song->lastPracticed().date() == QDate::currentDate() ?
+             song->practiceBeforeLast() :
+             song->lastPracticed());
+    };
+
+    auto sortedSongs = m_model->songs();
+    std::sort(sortedSongs.begin(), sortedSongs.end(), [&getPracticeDate](Song *lhs, Song *rhs) {
+        return getPracticeDate(lhs) < getPracticeDate(rhs);
+    });
+
+    auto low = sortedSongs;
+    low.removeIf([&getPracticeDate](Song *song) {
+        return song->proficiency() != Song::LowProficiency ||
+               getPracticeDate(song).daysTo(QDateTime::currentDateTime()) <= 0;
+    });
+
+    int minDaysSinceMedPractice;
+    if (low.size() >= m_dailySetSize * 4 / 5 - 1)
+        minDaysSinceMedPractice = 4;
+    else
+        minDaysSinceMedPractice = 3;
+    auto med = sortedSongs;
+    med.removeIf([&minDaysSinceMedPractice, &getPracticeDate](Song *song) {
+        return song->proficiency() != Song::MediumProficiency ||
+               getPracticeDate(song).daysTo(QDateTime::currentDateTime()) < minDaysSinceMedPractice;
+    });
+
+    auto high = sortedSongs;
+    high.removeIf([](Song *song) { return song->proficiency() != Song::HighProficiency; });
+
+    bool isDailySetSizeOverflowed = low.size() + med.size() >= m_dailySetSize;
+
+    if (high.size() > 0)
+    {
+        int numToAppend = std::min(isDailySetSizeOverflowed ? std::min(m_dailySetSize / 5, 2) :
+                                                              m_dailySetSize - low.size() - med.size(),
+                                   high.size());
+        for (int i = 0; i < numToAppend; ++i)
+            if (high[i]->lastPracticed().daysTo(QDateTime::currentDateTime()) > 0)
+                m_mappings.append(m_model->songs().indexOf(high[i]));
+    }
+
+    if (med.size() > 0)
+    {
+        int numToAppend = isDailySetSizeOverflowed ? m_dailySetSize / 5 : med.size();
+        for (int i = numToAppend - 1; i >= 0; --i)
+            if (med[i]->lastPracticed().daysTo(QDateTime::currentDateTime()) >= minDaysSinceMedPractice)
+                m_mappings.prepend(m_model->songs().indexOf(med[i]));
+    }
+
+    if (low.size() > 0)
+        for (int i = std::min(low.size(), m_dailySetSize - m_mappings.size()) - 1; i >= 0; --i)
+            if (low[i]->lastPracticed().daysTo(QDateTime::currentDateTime()) > 0)
+                m_mappings.prepend(m_model->songs().indexOf(low[i]));
+
+    for (const auto i : m_mappings)
+        m_model->songs()[i]->setPartOfTodaysSet(QDate::currentDate());
+
+    endResetModel();
 }

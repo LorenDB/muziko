@@ -33,24 +33,32 @@ public:
 
     QString name() const { return m_name; }
     QDateTime lastPracticed() const { return m_lastPracticed; }
+    QDateTime practiceBeforeLast() const { return m_practiceBeforeLast; }
+    QDate partOfTodaysSet() const { return m_partOfTodaysSet; }
     Proficiency proficiency() const { return m_proficiency; }
 
     QString proficiencyString() const;
 
-    void setProficiency(Proficiency newProficiency);
     void setName(const QString &newName);
     void setLastPracticed(const QDateTime &newLastPracticed);
+    void setPracticeBeforeLast(const QDateTime &newDateTime);
+    void setPartOfTodaysSet(const QDate &day);
+    void setProficiency(Proficiency newProficiency);
 
     Q_INVOKABLE void markAsPracticedToday();
 
 signals:
     void nameChanged();
     void lastPracticedChanged();
+    void practiceBeforeLastChanged();
+    void partOfTodaysSetChanged();
     void proficiencyChanged();
 
 private:
     QString m_name;
     QDateTime m_lastPracticed;
+    QDateTime m_practiceBeforeLast;
+    QDate m_partOfTodaysSet;
     Proficiency m_proficiency;
 };
 Q_DECLARE_METATYPE(Song)
@@ -69,7 +77,6 @@ public:
         Name,
         LastPracticed,
         ProficiencyValue,
-        ProficiencyString,
         SongObject,
     };
 
@@ -97,7 +104,7 @@ private:
     //    QList<QString> m_links;
 };
 
-class SongsFilterModel : public QSortFilterProxyModel
+class SongsFilterModel : public QAbstractProxyModel
 {
     Q_OBJECT
     QML_ELEMENT
@@ -106,10 +113,19 @@ class SongsFilterModel : public QSortFilterProxyModel
 public:
     explicit SongsFilterModel(SongsModel *parent = nullptr);
 
-protected:
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
-    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
+    QModelIndex index(int row, int column = 0, const QModelIndex & = {}) const override;
+    QModelIndex parent(const QModelIndex &) const override;
+    int rowCount(const QModelIndex &parent = {}) const override;
+    int columnCount(const QModelIndex & = {}) const override;
+
+    void rebuildMappings();
 
 private:
+    // The keys of this list map directly to the proxy rows. The value for each key is the source row.
+    QList<int> m_mappings;
+    int m_dailySetSize = 5;
+
     SongsModel *m_model;
 };

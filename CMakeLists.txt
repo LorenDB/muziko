@@ -9,8 +9,15 @@ project(muziko VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Qml Quick QuickControls2)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Qml Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
+
+set(MUZIKO_LIB_SRC
+    cpp/Muziko.cpp
+    cpp/Muziko.h
+    cpp/SongsModel.cpp
+    cpp/SongsModel.h
+)
 
 qt_add_executable(muziko cpp/main.cpp)
 qt_add_qml_module(muziko
@@ -24,10 +31,7 @@ qt_add_qml_module(muziko
         qml/Main.qml
         qml/SongsPage.qml
     SOURCES
-        cpp/Muziko.cpp
-        cpp/Muziko.h
-        cpp/SongsModel.cpp
-        cpp/SongsModel.h
+        ${MUZIKO_LIB_SRC}
     RESOURCES
         qtquickcontrols2.conf
         qml/icons/add.svg
@@ -36,7 +40,6 @@ qt_add_qml_module(muziko
         qml/icons/edit.svg
         qml/icons/menu.svg
         qml/icons/settings.svg
-
 )
 
 target_include_directories(muziko PRIVATE cpp)
@@ -62,3 +65,14 @@ install(TARGETS muziko
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+#####################
+# TESTS
+#####################
+
+enable_testing(true)
+
+qt_add_executable(SongsFilterModelTest tests/SongsFilterModelTest.cpp ${MUZIKO_LIB_SRC})
+target_include_directories(SongsFilterModelTest PRIVATE cpp)
+add_test(NAME SongsFilterModelTest COMMAND SongsFilterModelTest)
+target_link_libraries(SongsFilterModelTest PRIVATE Qt::Test Qt::Qml)
