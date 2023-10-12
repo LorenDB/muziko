@@ -23,7 +23,6 @@ qt_add_executable(muziko cpp/main.cpp)
 qt_add_qml_module(muziko
     URI dev.lorendb.muziko
     VERSION 1.0
-#    NO_RESOURCE_TARGET_PATH
     QML_FILES
         qml/AddInstrumentPage.qml
         qml/AddSongPage.qml
