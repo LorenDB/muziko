@@ -34,6 +34,7 @@ qt_add_qml_module(muziko
     RESOURCES
         qtquickcontrols2.conf
         qml/icons/add.svg
+        qml/icons/calendar.svg
         qml/icons/delete.svg
         qml/icons/done.svg
         qml/icons/edit.svg

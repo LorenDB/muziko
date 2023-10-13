@@ -18,34 +18,85 @@ ApplicationWindow {
     Material.primary: Material.Blue
     Material.accent: Material.Cyan
 
-    Component.onCompleted: if (Muziko.songs == null) stack.push(addInstrumentPage)
+    Component.onCompleted: {
+        if (Muziko.songs == null)
+            stack.push(addInstrumentPage);
+
+        // this back key handling method comes from https://stackoverflow.com/a/67357598/12533859
+        contentItem.Keys.released.connect(function(event) {
+            if (event.key === Qt.Key_Back && rootStackView.depth > 1) {
+                event.accepted = true
+                rootStackView.pop()
+            }
+            else
+                event.accepted = false
+        })
+        // TODO: do same with mouse back button
+    }
 
     header: ToolBar {
-        id: toolbar
-
         background: Rectangle {
-            implicitHeight: 50
+            implicitHeight: 60
             gradient: Gradient {
                 orientation: Gradient.Horizontal
 
-                GradientStop { position: 0; color: "#2eda5f" }
+                GradientStop { position: 0; color: "#31ba6f" }
                 GradientStop { position: 1; color: "#385e9b" }
             }
         }
 
-        ToolButton {
-            id: menuButton
+        Rectangle {
+            color: "#33ffffff"
+            radius: height / 2
+            width: Math.max(instrumentLabel.implicitWidth + instrumentLabel.padding * 2, 150)
+            height: instrumentLabel.implicitHeight
+            border.color: "#ffffff"
+            border.width: 1
+            anchors.centerIn: parent
 
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-            icon.source: Qt.resolvedUrl("icons/menu.svg")
-            onClicked: drawer.open()
+            TapHandler {
+                onTapped: instrumentPicker.open()
+            }
+
+            Label {
+                id: instrumentLabel
+
+                anchors.centerIn: parent
+                text: Muziko.songs ? Muziko.songs.instrument : "Muziko"
+                horizontalAlignment: Qt.AlignCenter
+                padding: 10
+            }
+        }
+    }
+
+    footer: ToolBar {
+        background: Rectangle {
+            implicitHeight: 60
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+
+                GradientStop { position: 0; color: "#31ba6f" }
+                GradientStop { position: 1; color: "#385e9b" }
+            }
         }
 
-        Label {
-            anchors.centerIn: parent
-            text: Muziko.songs ? Muziko.songs.instrument : "Muziko"
-            horizontalAlignment: Qt.AlignCenter
+        ListView {
+            anchors.fill: parent
+            orientation: ListView.Horizontal
+        }
+
+        RowLayout {
+            anchors.fill: parent
+
+            ToolButton {
+                icon.source: Qt.resolvedUrl("icons/calendar.svg")
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            ToolButton {
+                icon.source: Qt.resolvedUrl("icons/settings.svg")
+                Layout.alignment: Qt.AlignHCenter
+            }
         }
     }
 
@@ -73,14 +124,15 @@ ApplicationWindow {
         EditSongPage {}
     }
 
-    Drawer {
-        id: drawer
-
-        edge: Qt.LeftEdge
-        height: parent.height
-        width: Math.min(300, rootWindow.width * 0.667)
+    component InstrumentPicker : Popup {
+        anchors.centerIn: parent
+        modal: true
+        width: 400
+        height: instruments.contentHeight + padding * 2
 
         ListView {
+            id: instruments
+
             anchors.fill: parent
             model: Muziko
 
@@ -91,7 +143,6 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     Muziko.setCurrentInstrument(name);
-                    drawer.close();
                 }
             }
 
@@ -99,13 +150,12 @@ ApplicationWindow {
                 text: qsTr("Add...")
                 icon.source: Qt.resolvedUrl("icons/add.svg")
                 width: parent.width
-                onClicked: {
-                    drawer.close();
-                    stack.push(addInstrumentPage);
-                }
+                onClicked: stack.push(addInstrumentPage)
             }
         }
     }
+
+    InstrumentPicker { id: instrumentPicker }
 
     StackView {
         id: stack

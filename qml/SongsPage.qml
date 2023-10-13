@@ -13,6 +13,7 @@ ListView {
     property bool showAll: false
 
     model: showAll ? Muziko.songs : Muziko.songsFilter
+    boundsBehavior: Flickable.OvershootBounds
     remove: Transition {
         NumberAnimation {
             property: "opacity"
