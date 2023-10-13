@@ -21,6 +21,18 @@ ApplicationWindow {
     Component.onCompleted: if (Muziko.songs == null) stack.push(addInstrumentPage)
 
     header: ToolBar {
+        id: toolbar
+
+        background: Rectangle {
+            implicitHeight: 50
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+
+                GradientStop { position: 0; color: "#2eda5f" }
+                GradientStop { position: 1; color: "#385e9b" }
+            }
+        }
+
         ToolButton {
             id: menuButton
 
