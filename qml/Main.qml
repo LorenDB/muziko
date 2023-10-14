@@ -10,33 +10,25 @@ import dev.lorendb.muziko
 ApplicationWindow {
     id: rootWindow
 
-    width: 640
-    height: 480
+    width: 550
+    height: 700
     visible: true
     title: "Muziko"
     Material.theme: Material.Dark
     Material.primary: Material.Blue
-    Material.accent: Material.Cyan
+    Material.accent: Material.Teal
 
     Component.onCompleted: {
         if (Muziko.songs == null)
             stack.push(addInstrumentPage);
-
-        // this back key handling method comes from https://stackoverflow.com/a/67357598/12533859
-        contentItem.Keys.released.connect(function(event) {
-            if (event.key === Qt.Key_Back && rootStackView.depth > 1) {
-                event.accepted = true
-                rootStackView.pop()
-            }
-            else
-                event.accepted = false
-        })
-        // TODO: do same with mouse back button
     }
 
-    header: ToolBar {
+    footer: TabBar {
+        id: pageSwitcher
+
+        height: 60
+        Material.accent: "#ffffff"
         background: Rectangle {
-            implicitHeight: 60
             gradient: Gradient {
                 orientation: Gradient.Horizontal
 
@@ -45,58 +37,14 @@ ApplicationWindow {
             }
         }
 
-        Rectangle {
-            color: "#33ffffff"
-            radius: height / 2
-            width: Math.max(instrumentLabel.implicitWidth + instrumentLabel.padding * 2, 150)
-            height: instrumentLabel.implicitHeight
-            border.color: "#ffffff"
-            border.width: 1
-            anchors.centerIn: parent
-
-            TapHandler {
-                onTapped: instrumentPicker.open()
-            }
-
-            Label {
-                id: instrumentLabel
-
-                anchors.centerIn: parent
-                text: Muziko.songs ? Muziko.songs.instrument : "Muziko"
-                horizontalAlignment: Qt.AlignCenter
-                padding: 10
-            }
-        }
-    }
-
-    footer: ToolBar {
-        background: Rectangle {
-            implicitHeight: 60
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-
-                GradientStop { position: 0; color: "#31ba6f" }
-                GradientStop { position: 1; color: "#385e9b" }
-            }
+        TabButton {
+            icon.source: Qt.resolvedUrl("icons/calendar.svg")
+            Layout.alignment: Qt.AlignHCenter
         }
 
-        ListView {
-            anchors.fill: parent
-            orientation: ListView.Horizontal
-        }
-
-        RowLayout {
-            anchors.fill: parent
-
-            ToolButton {
-                icon.source: Qt.resolvedUrl("icons/calendar.svg")
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            ToolButton {
-                icon.source: Qt.resolvedUrl("icons/settings.svg")
-                Layout.alignment: Qt.AlignHCenter
-            }
+        TabButton {
+            icon.source: Qt.resolvedUrl("icons/settings.svg")
+            Layout.alignment: Qt.AlignHCenter
         }
     }
 
@@ -124,43 +72,32 @@ ApplicationWindow {
         EditSongPage {}
     }
 
-    component InstrumentPicker : Popup {
-        anchors.centerIn: parent
-        modal: true
-        width: 400
-        height: instruments.contentHeight + padding * 2
+    StackLayout {
+        anchors.fill: parent
+        currentIndex: pageSwitcher.currentIndex
 
-        ListView {
-            id: instruments
+        StackView {
+            id: stack
 
-            anchors.fill: parent
-            model: Muziko
-
-            delegate: ItemDelegate {
-                required property string name
-
-                text: name
-                width: parent.width
-                onClicked: {
-                    Muziko.setCurrentInstrument(name);
+            Keys.onReleased: event => {
+                if (event.key === Qt.Key_Back && StackLayout.isCurrentItem && stack.depth > 1)
+                {
+                    event.accepted = true;
+                    pop();
                 }
             }
 
-            footer: ItemDelegate {
-                text: qsTr("Add...")
-                icon.source: Qt.resolvedUrl("icons/add.svg")
-                width: parent.width
-                onClicked: stack.push(addInstrumentPage)
-            }
+            anchors.fill: parent
+            initialItem: songsPage
         }
-    }
 
-    InstrumentPicker { id: instrumentPicker }
-
-    StackView {
-        id: stack
-
-        anchors.fill: parent
-        initialItem: songsPage
+        SettingsPage {
+            Keys.onReleased: event => {
+                if (event.key === Qt.Key_Back && StackLayout.isCurrentItem)
+                {
+                    event.accepted = true;
+                    pageSwitcher.currentIndex = 0;
+                }
+            }}
     }
 }

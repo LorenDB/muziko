@@ -4,6 +4,8 @@
 
 #include "SongsModel.h"
 
+#include "Settings.h"
+
 Song::Song(QObject *parent)
     : QObject{parent}
 {}
@@ -198,6 +200,7 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
     // TODO: build some sort of elegant handler for this? It *should* be possible to handle songs that have been marked as
     // done without requiring a complete model reset and mapping recalculation
     connect(parent, &SongsModel::dataChanged, this, &SongsFilterModel::rebuildMappings);
+    connect(Settings::instance(), &Settings::dailySetSizeChanged, this, &SongsFilterModel::rebuildMappings);
 }
 
 QModelIndex SongsFilterModel::mapFromSource(const QModelIndex &sourceIndex) const
@@ -242,6 +245,7 @@ void SongsFilterModel::rebuildMappings()
     beginResetModel();
 
     m_mappings.clear();
+    const auto dailySetSize = Settings::instance()->dailySetSize();
 
     // if the user practiced this song earlier today as part of a set, we want to temporarily include that in the list so
     // we don't spam new songs on the list infinitely
@@ -264,7 +268,7 @@ void SongsFilterModel::rebuildMappings()
     });
 
     int minDaysSinceMedPractice;
-    if (low.size() >= m_dailySetSize * 4 / 5 - 1)
+    if (low.size() >= dailySetSize * 4 / 5 - 1)
         minDaysSinceMedPractice = 4;
     else
         minDaysSinceMedPractice = 3;
@@ -278,12 +282,12 @@ void SongsFilterModel::rebuildMappings()
     auto high = sortedSongs;
     high.removeIf([](Song *song) { return song->proficiency() != Song::HighProficiency; });
 
-    bool isDailySetSizeOverflowed = low.size() + med.size() >= m_dailySetSize;
+    bool isDailySetSizeOverflowed = low.size() + med.size() >= dailySetSize;
 
     if (high.size() > 0)
     {
-        int numToAppend = std::min(isDailySetSizeOverflowed ? std::min(m_dailySetSize / 5, 2) :
-                                                              m_dailySetSize - low.size() - med.size(),
+        int numToAppend = std::min(isDailySetSizeOverflowed ? std::min(dailySetSize / 5, 2) :
+                                                              dailySetSize - low.size() - med.size(),
                                    high.size());
         for (int i = 0; i < numToAppend; ++i)
         {
@@ -295,7 +299,7 @@ void SongsFilterModel::rebuildMappings()
 
     if (med.size() > 0)
     {
-        int numToAppend = isDailySetSizeOverflowed ? m_dailySetSize / 5 : med.size();
+        int numToAppend = isDailySetSizeOverflowed ? dailySetSize / 5 : med.size();
         for (int i = numToAppend - 1; i >= 0; --i)
         {
             const auto &lp = med[i]->lastPracticed();
@@ -305,7 +309,7 @@ void SongsFilterModel::rebuildMappings()
     }
 
     if (low.size() > 0)
-        for (int i = std::min(low.size(), m_dailySetSize - m_mappings.size()) - 1; i >= 0; --i)
+        for (int i = std::min(low.size(), dailySetSize - m_mappings.size()) - 1; i >= 0; --i)
         {
             const auto &lp = low[i]->lastPracticed();
             if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) > 0)

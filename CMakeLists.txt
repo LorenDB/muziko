@@ -15,6 +15,8 @@ qt_standard_project_setup(REQUIRES 6.5)
 set(MUZIKO_LIB_SRC
     cpp/Muziko.cpp
     cpp/Muziko.h
+    cpp/Settings.cpp
+    cpp/Settings.h
     cpp/SongsModel.cpp
     cpp/SongsModel.h
 )
@@ -28,6 +30,7 @@ qt_add_qml_module(muziko
         qml/AddSongPage.qml
         qml/EditSongPage.qml
         qml/Main.qml
+        qml/SettingsPage.qml
         qml/SongsPage.qml
     SOURCES
         ${MUZIKO_LIB_SRC}
@@ -92,7 +95,8 @@ install(TARGETS muziko
 
 enable_testing(true)
 
-qt_add_executable(SongsFilterModelTest tests/SongsFilterModelTest.cpp ${MUZIKO_LIB_SRC})
+qt_add_executable(SongsFilterModelTest tests/SongsFilterModelTest.cpp ${MUZIKO_LIB_SRC}
+    qml/SettingsPage.qml)
 target_include_directories(SongsFilterModelTest PRIVATE cpp)
 add_test(NAME SongsFilterModelTest COMMAND SongsFilterModelTest)
 target_link_libraries(SongsFilterModelTest PRIVATE Qt::Test Qt::Qml)

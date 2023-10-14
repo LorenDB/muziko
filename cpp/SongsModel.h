@@ -125,7 +125,6 @@ public:
 private:
     // The keys of this list map directly to the proxy rows. The value for each key is the source row.
     QList<int> m_mappings;
-    int m_dailySetSize = 5;
 
     SongsModel *m_model;
 };
