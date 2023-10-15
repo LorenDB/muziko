@@ -42,6 +42,7 @@ qt_add_qml_module(muziko
         qml/icons/done.svg
         qml/icons/edit.svg
         qml/icons/menu.svg
+        qml/icons/null.svg
         qml/icons/settings.svg
 )
 

@@ -16,7 +16,8 @@ class Song : public QObject
     QML_UNCREATABLE("")
 
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged FINAL)
-    Q_PROPERTY(QDateTime lastPracticed READ lastPracticed WRITE setLastPracticed NOTIFY lastPracticedChanged FINAL)
+    Q_PROPERTY(QString lastPracticedString READ lastPracticedString NOTIFY lastPracticedChanged FINAL)
+    Q_PROPERTY(bool practicedToday READ practicedToday WRITE setPracticedToday NOTIFY lastPracticedChanged FINAL)
     Q_PROPERTY(Proficiency proficiency READ proficiency WRITE setProficiency NOTIFY proficiencyChanged FINAL)
     Q_PROPERTY(QString proficiencyString READ proficiencyString NOTIFY proficiencyChanged FINAL)
 
@@ -33,8 +34,10 @@ public:
 
     QString name() const { return m_name; }
     QDateTime lastPracticed() const { return m_lastPracticed; }
+    QString lastPracticedString() const;
     QDateTime practiceBeforeLast() const { return m_practiceBeforeLast; }
-    QDate partOfTodaysSet() const { return m_partOfTodaysSet; }
+    QDate dailySet() const { return m_dailySet; }
+    bool practicedToday() const { return m_lastPracticed.date() == QDate::currentDate(); }
     Proficiency proficiency() const { return m_proficiency; }
 
     QString proficiencyString() const;
@@ -42,10 +45,10 @@ public:
     void setName(const QString &newName);
     void setLastPracticed(const QDateTime &newLastPracticed);
     void setPracticeBeforeLast(const QDateTime &newDateTime);
-    void setPartOfTodaysSet(const QDate &day);
+    void setDailySet(const QDate &day);
     void setProficiency(Proficiency newProficiency);
 
-    Q_INVOKABLE void markAsPracticedToday();
+    void setPracticedToday(bool state);
 
 signals:
     void nameChanged();
@@ -58,7 +61,7 @@ private:
     QString m_name;
     QDateTime m_lastPracticed;
     QDateTime m_practiceBeforeLast;
-    QDate m_partOfTodaysSet;
+    QDate m_dailySet;
     Proficiency m_proficiency;
 };
 Q_DECLARE_METATYPE(Song)

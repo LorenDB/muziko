@@ -10,6 +10,16 @@ Song::Song(QObject *parent)
     : QObject{parent}
 {}
 
+QString Song::lastPracticedString() const
+{
+    if (m_lastPracticed.isNull())
+        return tr("Never");
+    else if (m_lastPracticed.date().year() != QDate::currentDate().year())
+        return m_lastPracticed.toString("MMMM d yyyy");
+    else
+        return m_lastPracticed.toString("MMMM d");
+}
+
 QString Song::proficiencyString() const
 {
     switch (m_proficiency)
@@ -50,17 +60,24 @@ void Song::setPracticeBeforeLast(const QDateTime &newDateTime)
     emit practiceBeforeLastChanged();
 }
 
-void Song::setPartOfTodaysSet(const QDate &day)
+void Song::setDailySet(const QDate &day)
 {
-    if (m_partOfTodaysSet == day)
+    if (m_dailySet == day)
         return;
-    m_partOfTodaysSet = day;
+    m_dailySet = day;
     emit partOfTodaysSetChanged();
 }
 
-void Song::markAsPracticedToday()
+void Song::setPracticedToday(bool state)
 {
-    setLastPracticed(QDateTime::currentDateTime());
+    if (state && m_lastPracticed.date() != QDate::currentDate())
+        setLastPracticed(QDateTime::currentDateTime());
+    else if (!state && m_lastPracticed.date() == QDate::currentDate())
+    {
+        // Manually set m_lastPracticed to avoid changing m_practiceBeforeLast
+        m_lastPracticed = m_practiceBeforeLast;
+        emit lastPracticedChanged();
+    }
 }
 
 void Song::setProficiency(Proficiency newProficiency)
@@ -97,19 +114,19 @@ void SongsModel::addSong(Song *song)
     m_songs.push_back(song);
     endInsertRows();
 
-    auto updateSong = [this, song] {
+    auto updateSong = [this, song](Roles role) {
         for (int i = 0; i < m_songs.size(); ++i)
         {
             if (m_songs[i] == song)
             {
-                emit dataChanged(index(i), index(i));
+                emit dataChanged(index(i), index(i), {role});
                 break;
             }
         }
     };
-    connect(song, &Song::nameChanged, this, updateSong);
-    connect(song, &Song::lastPracticedChanged, this, updateSong);
-    connect(song, &Song::proficiencyChanged, this, updateSong);
+    connect(song, &Song::nameChanged, this, [updateSong] { updateSong(Roles::Name); });
+    connect(song, &Song::lastPracticedChanged, this, [updateSong] { updateSong(Roles::LastPracticed); });
+    connect(song, &Song::proficiencyChanged, this, [updateSong] { updateSong(Roles::ProficiencyValue); });
 }
 
 void SongsModel::removeSong(const QString &name)
@@ -130,7 +147,7 @@ void SongsModel::removeSong(const QString &name)
 QHash<int, QByteArray> SongsModel::roleNames() const
 {
     return {{Roles::Name, "name"},
-            {Roles::LastPracticed, "lastPracticed"},
+            {Roles::LastPracticed, "lastPracticedString"},
             {Roles::ProficiencyValue, "proficiency"},
             {Roles::SongObject, "song"}};
 }
@@ -145,7 +162,7 @@ QVariant SongsModel::data(const QModelIndex &index, int role) const
     case Roles::Name:
         return m_songs[index.row()]->name();
     case Roles::LastPracticed:
-        return m_songs[index.row()]->lastPracticed();
+        return m_songs[index.row()]->lastPracticedString();
     case Roles::ProficiencyValue:
         return m_songs[index.row()]->proficiency();
     case Roles::SongObject:
@@ -197,9 +214,83 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
         endResetModel();
     });
 
-    // TODO: build some sort of elegant handler for this? It *should* be possible to handle songs that have been marked as
-    // done without requiring a complete model reset and mapping recalculation
-    connect(parent, &SongsModel::dataChanged, this, &SongsFilterModel::rebuildMappings);
+    connect(parent,
+            &SongsModel::dataChanged,
+            this,
+            [this](const QModelIndex &left, const QModelIndex &right, const QList<int> &roles) {
+        if (roles.size() == 1)
+        {
+            auto role = roles[0];
+            switch (role)
+            {
+            case SongsModel::Name:
+                for (int i = left.row(); i <= right.row(); ++i)
+                {
+                    if (m_mappings.contains(i))
+                    {
+                        auto idx = index(m_mappings.indexOf(i));
+                        emit dataChanged(idx, idx, roles);
+                    }
+                }
+                break;
+            case SongsModel::LastPracticed:
+                for (int sourceIdx = left.row(); sourceIdx <= right.row(); ++sourceIdx)
+                {
+                    if (m_mappings.contains(sourceIdx))
+                    {
+                        auto proxyIdx = m_mappings.indexOf(sourceIdx);
+                        Song *song = m_model->data(m_model->index(sourceIdx), SongsModel::SongObject).value<Song *>();
+                        int targetLoc = 0;
+                        for (; targetLoc < m_mappings.size(); ++targetLoc)
+                        {
+                            if (targetLoc == proxyIdx)
+                                continue;
+                            auto cmp =
+                                m_model->data(m_model->index(m_mappings[targetLoc]), SongsModel::SongObject).value<Song *>();
+
+                            bool greaterThan = false;
+                            if (!song->lastPracticed().isNull() && cmp->lastPracticed().isNull())
+                                greaterThan = true;
+                            else if (song->lastPracticed().date() > cmp->lastPracticed().date())
+                                greaterThan = true;
+                            else if (song->lastPracticed().date() == cmp->lastPracticed().date())
+                            {
+                                if (song->proficiency() > cmp->proficiency())
+                                    greaterThan = true;
+                                else if (song->proficiency() == cmp->proficiency())
+                                    if (song->name() > cmp->name())
+                                        greaterThan = true;
+                            }
+
+                            if (!greaterThan)
+                                break;
+                        }
+
+                        if (targetLoc == m_mappings.size())
+                            --targetLoc;
+                        if (proxyIdx == targetLoc)
+                            continue;
+
+                        // So... QAbstractListModel::beginMoveRows() has some *wacky* behavior if you are moving a row to a
+                        // different location in the same model. Specifically, moving anywhere other than 0 requires
+                        // inserting at the index *after* where you want to be, but only if you are moving down the list. I
+                        // don't get it. Why can't you just use a normal move like QList has???
+                        beginMoveRows({}, proxyIdx, proxyIdx, {}, targetLoc > proxyIdx ? targetLoc + 1 : targetLoc);
+                        m_mappings.move(proxyIdx, targetLoc);
+                        endMoveRows();
+                    }
+                }
+                break;
+            case SongsModel::ProficiencyValue:
+            case SongsModel::SongObject:
+            default:
+                rebuildMappings();
+                break;
+            }
+        }
+        else
+            rebuildMappings();
+    });
     connect(Settings::instance(), &Settings::dailySetSizeChanged, this, &SongsFilterModel::rebuildMappings);
 }
 
@@ -245,12 +336,13 @@ void SongsFilterModel::rebuildMappings()
     beginResetModel();
 
     m_mappings.clear();
+    decltype(m_mappings) alreadyPracticedMappings;
     const auto dailySetSize = Settings::instance()->dailySetSize();
 
     // if the user practiced this song earlier today as part of a set, we want to temporarily include that in the list so
     // we don't spam new songs on the list infinitely
     auto getPracticeDate = [](Song *song) {
-        return (song->partOfTodaysSet() == QDate::currentDate() && song->lastPracticed().date() == QDate::currentDate() ?
+        return (song->dailySet() == QDate::currentDate() && song->lastPracticed().date() == QDate::currentDate() ?
              song->practiceBeforeLast() :
              song->lastPracticed());
     };
@@ -291,9 +383,10 @@ void SongsFilterModel::rebuildMappings()
                                    high.size());
         for (int i = 0; i < numToAppend; ++i)
         {
-            const auto &lp = high[i]->lastPracticed();
-            if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) > 0)
+            if (!high[i]->practicedToday())
                 m_mappings.append(m_model->songs().indexOf(high[i]));
+            else
+                alreadyPracticedMappings.append(m_model->songs().indexOf(high[i]));
         }
     }
 
@@ -302,22 +395,26 @@ void SongsFilterModel::rebuildMappings()
         int numToAppend = isDailySetSizeOverflowed ? dailySetSize / 5 : med.size();
         for (int i = numToAppend - 1; i >= 0; --i)
         {
-            const auto &lp = med[i]->lastPracticed();
-            if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) >= minDaysSinceMedPractice)
+            if (!med[i]->practicedToday())
                 m_mappings.prepend(m_model->songs().indexOf(med[i]));
+            else
+                alreadyPracticedMappings.prepend(m_model->songs().indexOf(med[i]));
         }
     }
 
     if (low.size() > 0)
         for (int i = std::min(low.size(), dailySetSize - m_mappings.size()) - 1; i >= 0; --i)
         {
-            const auto &lp = low[i]->lastPracticed();
-            if (lp.isNull() || lp.daysTo(QDateTime::currentDateTime()) > 0)
+            if (!low[i]->practicedToday())
                 m_mappings.prepend(m_model->songs().indexOf(low[i]));
+            else
+                alreadyPracticedMappings.prepend(m_model->songs().indexOf(low[i]));
         }
 
+    m_mappings.append(alreadyPracticedMappings);
+
     for (const auto i : m_mappings)
-        m_model->songs()[i]->setPartOfTodaysSet(QDate::currentDate());
+        m_model->songs()[i]->setDailySet(QDate::currentDate());
 
     endResetModel();
 }

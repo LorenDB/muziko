@@ -90,7 +90,7 @@ void Muziko::loadSongs()
             s->setLastPracticed(settings.value(QStringLiteral("last_practiced")).toDateTime());
             s->setProficiency(settings.value(QStringLiteral("proficiency"), Song::Proficiency::MediumProficiency)
                                   .value<Song::Proficiency>());
-            s->setPartOfTodaysSet(settings.value(QStringLiteral("part_of_todays_set")).toDate());
+            s->setDailySet(settings.value(QStringLiteral("daily_set")).toDate());
             settings.endGroup(); // song
             model->addSong(s);
         }
@@ -126,7 +126,7 @@ void Muziko::saveSongs() const
             settings.beginGroup(song->name());
             settings.setValue(QStringLiteral("last_practiced"), song->lastPracticed());
             settings.setValue(QStringLiteral("proficiency"), song->proficiency());
-            settings.setValue(QStringLiteral("part_of_todays_set"), song->partOfTodaysSet());
+            settings.setValue(QStringLiteral("daily_set"), song->dailySet());
             settings.endGroup(); // song.name
         }
         settings.endGroup(); // model->instrument()

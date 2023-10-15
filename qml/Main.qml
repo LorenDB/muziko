@@ -29,12 +29,7 @@ ApplicationWindow {
         height: 60
         Material.accent: "#ffffff"
         background: Rectangle {
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-
-                GradientStop { position: 0; color: "#31ba6f" }
-                GradientStop { position: 1; color: "#385e9b" }
-            }
+            gradient: muzikoGradient
         }
 
         TabButton {
@@ -46,6 +41,15 @@ ApplicationWindow {
             icon.source: Qt.resolvedUrl("icons/settings.svg")
             Layout.alignment: Qt.AlignHCenter
         }
+    }
+
+    Gradient {
+        id: muzikoGradient
+
+        orientation: Gradient.Horizontal
+
+        GradientStop { position: 0; color: "#31ba6f" }
+        GradientStop { position: 1; color: "#385e9b" }
     }
 
     Component {
@@ -86,8 +90,6 @@ ApplicationWindow {
                     pop();
                 }
             }
-
-            anchors.fill: parent
             initialItem: songsPage
         }
 

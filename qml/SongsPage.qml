@@ -45,17 +45,24 @@ Page {
         }
     }
 
-    InstrumentPicker { id: instrumentPicker }
+    component SongCheckbox : ToolButton {
+        checkable: true
+        background: Rectangle {
+            radius: width / 2
+            border.color: "#ffffff"
+            border.width: parent.checked ? 0 : 1
+            color: parent.checked ? null : "transparent"
+            gradient: parent.checked ? muzikoGradient : null
+            rotation: 45
+        }
+        // the null SVG is necessary because the ToolButton will render at a different size with no icon set
+        icon.source: Qt.resolvedUrl(checked ? "icons/done.svg" : "icons/null.svg")
+    }
 
     footer: ToolBar {
         background: Rectangle {
             implicitHeight: 60
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-
-                GradientStop { position: 0; color: "#31ba6f" }
-                GradientStop { position: 1; color: "#385e9b" }
-            }
+            gradient: muzikoGradient
         }
 
         CheckBox {
@@ -99,6 +106,8 @@ Page {
         }
     }
 
+    InstrumentPicker { id: instrumentPicker }
+
     ListView {
         id: songList
 
@@ -124,14 +133,19 @@ Page {
             required property Song song
 
             width: songList.width
-            height: editBtn.implicitHeight + 20
+            height: doneBtn.height + 30
+            onClicked: doneBtn.toggle()
+
+            TapHandler {
+                onLongPressed: stack.push(editSongPage, {"song": del.song})
+            }
 
             RowLayout {
                 id: row
 
                 anchors.fill: parent
                 anchors.margins: 10
-                spacing: 10
+                spacing: 20
 
                 Label {
                     text: del.song.name
@@ -154,16 +168,14 @@ Page {
                     }
                 }
 
-                ToolButton {
-                    icon.source: Qt.resolvedUrl("icons/done.svg")
-                    onClicked: del.song.markAsPracticedToday()
-                }
+                SongCheckbox {
+                    id: doneBtn
 
-                ToolButton {
-                    id: editBtn
-
-                    icon.source: Qt.resolvedUrl("icons/edit.svg")
-                    onClicked: stack.push(editSongPage, {"song": del.song})
+                    Layout.alignment: Qt.AlignVCenter
+                    width: 20
+                    height: 20
+                    checked: del.song.practicedToday
+                    onCheckedChanged: del.song.practicedToday = checked
                 }
             }
         }

@@ -50,8 +50,7 @@ Page {
 
         Label {
             Layout.alignment: Qt.AlignRight
-            // TODO: handle "Invalid Date"
-            text: editSongRoot.song.lastPracticed
+            text: editSongRoot.song.lastPracticedString
         }
 
         Label {
