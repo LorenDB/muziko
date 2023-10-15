@@ -5,6 +5,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#include "Settings.h"
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setApplicationName("Muziko");
@@ -13,6 +15,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("lorendb.dev");
 
     QGuiApplication app(argc, argv);
+
+    // Prime the settings singleton
+    Settings::instance();
 
     QQmlApplicationEngine engine;
     QObject::connect(

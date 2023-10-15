@@ -16,7 +16,6 @@ class Settings : public QObject
     Q_PROPERTY(int dailySetSize READ dailySetSize WRITE setDailySetSize NOTIFY dailySetSizeChanged FINAL)
 
 public:
-    explicit Settings(QObject *parent = nullptr);
     ~Settings();
 
     static Settings *instance();
@@ -26,12 +25,13 @@ public:
     void save();
 
     int dailySetSize() const;
-    void setDailySetSize(int newDailySetSize);
+    void setDailySetSize(int dailySetSize);
 
 signals:
     void dailySetSizeChanged();
 
 private:
+    explicit Settings(QObject *parent = nullptr);
     static inline Settings *s_instance;
 
     int m_dailySetSize;

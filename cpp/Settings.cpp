@@ -64,10 +64,10 @@ int Settings::dailySetSize() const
     return m_dailySetSize;
 }
 
-void Settings::setDailySetSize(int newDailySetSize)
+void Settings::setDailySetSize(int dailySetSize)
 {
-    if (m_dailySetSize == newDailySetSize)
+    if (m_dailySetSize == dailySetSize)
         return;
-    m_dailySetSize = newDailySetSize;
+    m_dailySetSize = dailySetSize;
     emit dailySetSizeChanged();
 }
