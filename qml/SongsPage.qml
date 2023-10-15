@@ -75,17 +75,13 @@ Page {
         }
 
         Rectangle {
-            color: "#33ffffff"
+            color: instrumentLabelHH.hovered ? "#55ffffff" : "#33ffffff"
             radius: height / 2
             width: Math.max(instrumentLabel.implicitWidth + instrumentLabel.padding * 2, 150)
             height: instrumentLabel.implicitHeight
             border.color: "#ffffff"
             border.width: 1
             anchors.centerIn: parent
-
-            TapHandler {
-                onTapped: instrumentPicker.open()
-            }
 
             Label {
                 id: instrumentLabel
@@ -94,6 +90,18 @@ Page {
                 text: Muziko.songs ? Muziko.songs.instrument : ""
                 horizontalAlignment: Qt.AlignCenter
                 padding: 10
+            }
+
+            Behavior on color {
+                ColorAnimation { duration: 100 }
+            }
+
+            TapHandler {
+                onTapped: instrumentPicker.open()
+            }
+
+            HoverHandler {
+                id: instrumentLabelHH
             }
         }
 
