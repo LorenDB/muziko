@@ -70,6 +70,8 @@ Popup {
                     ToolButton {
                         icon.source: Qt.resolvedUrl("icons/close.svg")
                         onClicked: popupRoot.song.removeLink(modelData)
+                        Layout.preferredHeight: 35
+                        Layout.preferredWidth: height
                     }
                 }
             }
