@@ -213,41 +213,9 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
     setSourceModel(parent);
     rebuildMappings();
 
-    connect(parent, &SongsModel::rowsInserted, this, [this](const QModelIndex &, int first, int last) {
-        // TODO: this should be handled with dataChanged() and should possibly insert the new songs into the current
-        // practice list if they qualify (e.g. a low proficiency song)
-        beginResetModel();
-        const auto offset = last - first;
-        for (int i = 0; i < m_mappings.size(); ++i)
-        {
-            auto &idx = m_mappings[i];
-            if (idx >= first)
-                idx += offset;
-        }
-        endResetModel();
-    });
-
-    connect(parent, &SongsModel::rowsRemoved, this, [this](const QModelIndex &, int first, int last) {
-        // TODO: this should be handled with dataChanged() and/or beginRemoveRows() and should also queue up replacements for
-        // songs that needed practiced today
-        beginResetModel();
-        const auto offset = last - first + 1;
-        QList<int> toRemove;
-        for (int i = 0; i < m_mappings.size(); ++i)
-        {
-            auto &idx = m_mappings[i];
-            if (idx >= first && idx <= last)
-                toRemove.push_back(i);
-            else if (idx > last)
-                idx -= offset;
-        }
-
-        // reverse iteration prevents keys from being offset and messing up the remove operation
-        for (int i = toRemove.size() - 1; i >= 0; --i)
-            m_mappings.remove(toRemove[i]);
-        endResetModel();
-    });
-
+    connect(
+        parent, &SongsModel::rowsInserted, this, [this](const QModelIndex &, int first, int last) { rebuildMappings(); });
+    connect(parent, &SongsModel::rowsRemoved, this, [this](const QModelIndex &, int first, int last) { rebuildMappings(); });
     connect(parent,
             &SongsModel::dataChanged,
             this,
