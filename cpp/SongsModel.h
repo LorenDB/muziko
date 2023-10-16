@@ -20,6 +20,7 @@ class Song : public QObject
     Q_PROPERTY(bool practicedToday READ practicedToday WRITE setPracticedToday NOTIFY lastPracticedChanged FINAL)
     Q_PROPERTY(Proficiency proficiency READ proficiency WRITE setProficiency NOTIFY proficiencyChanged FINAL)
     Q_PROPERTY(QString proficiencyString READ proficiencyString NOTIFY proficiencyChanged FINAL)
+    Q_PROPERTY(QStringList links READ links NOTIFY linksChanged FINAL)
 
 public:
     enum Proficiency
@@ -39,6 +40,7 @@ public:
     QDate dailySet() const { return m_dailySet; }
     bool practicedToday() const { return m_lastPracticed.date() == QDate::currentDate(); }
     Proficiency proficiency() const { return m_proficiency; }
+    QStringList links() const { return m_links; }
 
     QString proficiencyString() const;
 
@@ -47,8 +49,11 @@ public:
     void setPracticeBeforeLast(const QDateTime &newDateTime);
     void setDailySet(const QDate &day);
     void setProficiency(Proficiency newProficiency);
+    void setLinks(const QStringList &links);
 
     void setPracticedToday(bool state);
+    void addLink(const QString &link);
+    void removeLink(const QString &link);
 
 signals:
     void nameChanged();
@@ -56,6 +61,7 @@ signals:
     void practiceBeforeLastChanged();
     void partOfTodaysSetChanged();
     void proficiencyChanged();
+    void linksChanged();
 
 private:
     QString m_name;
@@ -63,6 +69,7 @@ private:
     QDateTime m_practiceBeforeLast;
     QDate m_dailySet;
     Proficiency m_proficiency;
+    QStringList m_links;
 };
 Q_DECLARE_METATYPE(Song)
 
@@ -80,6 +87,7 @@ public:
         Name,
         LastPracticed,
         ProficiencyValue,
+        Links,
         SongObject,
     };
 
@@ -104,7 +112,6 @@ signals:
 private:
     QString m_instrument;
     QList<Song *> m_songs;
-    //    QList<QString> m_links;
 };
 
 class SongsFilterModel : public QAbstractProxyModel

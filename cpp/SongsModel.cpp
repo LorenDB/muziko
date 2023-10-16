@@ -80,12 +80,39 @@ void Song::setPracticedToday(bool state)
     }
 }
 
+void Song::addLink(const QString &link)
+{
+    if (m_links.contains(link))
+        return;
+    else if (!QUrl{link}.isValid())
+        return;
+
+    m_links.push_back(link);
+    emit linksChanged();
+}
+
+void Song::removeLink(const QString &link)
+{
+    if (!m_links.contains(link))
+        return;
+    m_links.removeAll(link);
+    emit linksChanged();
+}
+
 void Song::setProficiency(Proficiency newProficiency)
 {
     if (m_proficiency == newProficiency)
         return;
     m_proficiency = newProficiency;
     emit proficiencyChanged();
+}
+
+void Song::setLinks(const QStringList &links)
+{
+    if (m_links == links)
+        return;
+    m_links = links;
+    emit linksChanged();
 }
 
 SongsModel::SongsModel(QObject *parent)
@@ -127,6 +154,7 @@ void SongsModel::addSong(Song *song)
     connect(song, &Song::nameChanged, this, [updateSong] { updateSong(Roles::Name); });
     connect(song, &Song::lastPracticedChanged, this, [updateSong] { updateSong(Roles::LastPracticed); });
     connect(song, &Song::proficiencyChanged, this, [updateSong] { updateSong(Roles::ProficiencyValue); });
+    connect(song, &Song::linksChanged, this, [updateSong] { updateSong(Roles::Links); });
 }
 
 void SongsModel::removeSong(const QString &name)
@@ -149,6 +177,7 @@ QHash<int, QByteArray> SongsModel::roleNames() const
     return {{Roles::Name, "name"},
             {Roles::LastPracticed, "lastPracticedString"},
             {Roles::ProficiencyValue, "proficiency"},
+            {Roles::Links, "links"},
             {Roles::SongObject, "song"}};
 }
 
@@ -165,6 +194,8 @@ QVariant SongsModel::data(const QModelIndex &index, int role) const
         return m_songs[index.row()]->lastPracticedString();
     case Roles::ProficiencyValue:
         return m_songs[index.row()]->proficiency();
+    case Roles::Links:
+        return m_songs[index.row()]->links();
     case Roles::SongObject:
         return QVariant::fromValue(m_songs[index.row()]);
     default:
