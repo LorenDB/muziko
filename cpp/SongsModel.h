@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <QQmlEngine>
 #include <QSortFilterProxyModel>
+#include <QStringListModel>
 
 class Song : public QObject
 {
@@ -52,8 +53,8 @@ public:
     void setLinks(const QStringList &links);
 
     void setPracticedToday(bool state);
-    void addLink(const QString &link);
-    void removeLink(const QString &link);
+    Q_INVOKABLE void addLink(const QString &link);
+    Q_INVOKABLE void removeLink(const QString &link);
 
 signals:
     void nameChanged();

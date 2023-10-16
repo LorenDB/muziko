@@ -31,6 +31,7 @@ qt_add_qml_module(muziko
         qml/EditSongPage.qml
         qml/Main.qml
         qml/SettingsPage.qml
+        qml/SongInfoPopup.qml
         qml/SongsPage.qml
     SOURCES
         ${MUZIKO_LIB_SRC}
@@ -38,6 +39,7 @@ qt_add_qml_module(muziko
         qtquickcontrols2.conf
         qml/icons/add.svg
         qml/icons/calendar.svg
+        qml/icons/close.svg
         qml/icons/delete.svg
         qml/icons/done.svg
         qml/icons/edit.svg

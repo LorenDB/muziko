@@ -45,6 +45,8 @@ public:
 
     Q_INVOKABLE bool alreadyHasInstrument(const QString &name) const;
 
+    Q_INVOKABLE bool isValidUrl(const QString &url);
+
 signals:
     void songsChanged();
 

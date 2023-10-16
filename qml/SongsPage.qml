@@ -8,56 +8,7 @@ import QtQuick.Layouts
 import dev.lorendb.muziko
 
 Page {
-    component InstrumentPicker : Popup {
-        id: instrumentPickerRoot
-
-        anchors.centerIn: parent
-        modal: true
-        width: 400
-        height: instruments.contentHeight + padding * 2
-
-        ListView {
-            id: instruments
-
-            anchors.fill: parent
-            model: Muziko
-
-            delegate: ItemDelegate {
-                required property string name
-
-                text: name
-                width: parent.width
-                onClicked: {
-                    Muziko.setCurrentInstrument(name);
-                    instrumentPickerRoot.close();
-                }
-            }
-
-            footer: ItemDelegate {
-                text: qsTr("Add...")
-                icon.source: Qt.resolvedUrl("icons/add.svg")
-                width: parent.width
-                onClicked: {
-                    stack.push(addInstrumentPage);
-                    instrumentPickerRoot.close();
-                }
-            }
-        }
-    }
-
-    component SongCheckbox : ToolButton {
-        checkable: true
-        background: Rectangle {
-            radius: width / 2
-            border.color: "#ffffff"
-            border.width: parent.checked ? 0 : 1
-            color: parent.checked ? null : "transparent"
-            gradient: parent.checked ? muzikoGradient : null
-            rotation: 45
-        }
-        // the null SVG is necessary because the ToolButton will render at a different size with no icon set
-        icon.source: Qt.resolvedUrl(checked ? "icons/done.svg" : "icons/null.svg")
-    }
+    id: songsPageRoot
 
     footer: ToolBar {
         background: Rectangle {
@@ -142,7 +93,10 @@ Page {
 
             width: songList.width
             height: doneBtn.height + 30
-            onClicked: doneBtn.toggle()
+            onClicked: {
+                var popup = songInfoPopup.createObject(songsPageRoot, {"song": del.song});
+                popup.open();
+            }
 
             TapHandler {
                 onLongPressed: stack.push(editSongPage, {"song": del.song})
@@ -194,5 +148,62 @@ Page {
             font.italic: true
             anchors.centerIn: parent
         }
+    }
+
+    component InstrumentPicker : Popup {
+        id: instrumentPickerRoot
+
+        anchors.centerIn: parent
+        modal: true
+        width: 400
+        height: instruments.contentHeight + padding * 2
+
+        ListView {
+            id: instruments
+
+            anchors.fill: parent
+            model: Muziko
+
+            delegate: ItemDelegate {
+                required property string name
+
+                text: name
+                width: parent.width
+                onClicked: {
+                    Muziko.setCurrentInstrument(name);
+                    instrumentPickerRoot.close();
+                }
+            }
+
+            footer: ItemDelegate {
+                text: qsTr("Add...")
+                icon.source: Qt.resolvedUrl("icons/add.svg")
+                width: parent.width
+                onClicked: {
+                    stack.push(addInstrumentPage);
+                    instrumentPickerRoot.close();
+                }
+            }
+        }
+    }
+
+    component SongCheckbox : ToolButton {
+        checkable: true
+        background: Rectangle {
+            radius: width / 2
+            border.color: "#ffffff"
+            border.width: parent.checked ? 0 : 1
+            color: parent.checked ? null : "transparent"
+            gradient: parent.checked ? muzikoGradient : null
+            rotation: 45
+        }
+        // the null SVG is necessary because the ToolButton will render at a different size with no icon set
+        icon.source: Qt.resolvedUrl(checked ? "icons/done.svg" : "icons/null.svg")
+    }
+
+    Component {
+        id: songInfoPopup
+
+        SongInfoPopup {}
     }
 }

@@ -84,10 +84,13 @@ void Song::addLink(const QString &link)
 {
     if (m_links.contains(link))
         return;
-    else if (!QUrl{link}.isValid())
+    QUrl u{link};
+    if (!u.isValid())
         return;
+    if (u.scheme().isEmpty())
+        u.setScheme(QStringLiteral("https"));
 
-    m_links.push_back(link);
+    m_links.push_back(u.toString());
     emit linksChanged();
 }
 

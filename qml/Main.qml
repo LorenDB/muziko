@@ -100,6 +100,7 @@ ApplicationWindow {
                     event.accepted = true;
                     pageSwitcher.currentIndex = 0;
                 }
-            }}
+            }
+        }
     }
 }
