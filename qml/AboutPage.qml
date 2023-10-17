@@ -31,6 +31,12 @@ Page {
         }
 
         Label {
+            text: qsTr("Version %1").arg(Muziko.muzikoVersion())
+            Layout.fillWidth: true
+            horizontalAlignment: Label.AlignHCenter
+        }
+
+        Label {
             text: qsTr("Copyright © 2023 Loren Burkholder")
             Layout.fillWidth: true
             horizontalAlignment: Label.AlignHCenter

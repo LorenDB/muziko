@@ -7,11 +7,12 @@
 
 #include "FaviconProvider.h"
 #include "Settings.h"
+#include "cpp/MuzikoVersion.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setApplicationName(QStringLiteral("Muziko"));
-    QCoreApplication::setApplicationVersion(QStringLiteral("0.0.1"));
+    QCoreApplication::setApplicationVersion(QStringLiteral(MUZIKO_VERSION_STR));
     QCoreApplication::setOrganizationName(QStringLiteral("LorenDB"));
     QCoreApplication::setOrganizationDomain(QStringLiteral("lorendb.dev"));
 

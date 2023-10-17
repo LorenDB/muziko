@@ -8,6 +8,7 @@
 #include <QQmlEngine>
 
 #include "SongsModel.h"
+#include "cpp/MuzikoVersion.h"
 
 class Muziko : public QAbstractListModel
 {
@@ -46,6 +47,8 @@ public:
     Q_INVOKABLE bool alreadyHasInstrument(const QString &name) const;
 
     Q_INVOKABLE bool isValidUrl(const QString &url);
+
+    Q_INVOKABLE QString muzikoVersion() const { return QStringLiteral(MUZIKO_VERSION_STR); }
 
 signals:
     void songsChanged();

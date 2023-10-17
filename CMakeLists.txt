@@ -6,8 +6,12 @@
 cmake_minimum_required(VERSION 3.16)
 project(muziko VERSION 0.0.1 LANGUAGES CXX)
 
+set(muziko_VERSION_STR "${muziko_VERSION_MAJOR}.${muziko_VERSION_MINOR}.${muziko_VERSION_PATCH}")
+configure_file(cmake/MuzikoVersion.h.in cpp/MuzikoVersion.h)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Qml Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
@@ -62,8 +66,8 @@ target_include_directories(muziko PRIVATE cpp)
 
 set_target_properties(muziko PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER dev.lorendb.muziko
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${muziko_VERSION_STR}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${muziko_VERSION_STR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
     QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/
