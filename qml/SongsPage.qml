@@ -58,7 +58,7 @@ Page {
 
         RoundButton {
             icon.source: Qt.resolvedUrl("icons/add.svg")
-            onClicked: stack.push(addSongPage)
+            onClicked: songsStack.push(addSongPage)
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.margins: 10
@@ -176,7 +176,7 @@ Page {
                 icon.source: Qt.resolvedUrl("icons/add.svg")
                 width: parent.width
                 onClicked: {
-                    stack.push(addInstrumentPage);
+                    songsStack.push(addInstrumentPage);
                     instrumentPickerRoot.close();
                 }
             }

@@ -9,28 +9,51 @@ import QtQuick.Dialogs
 import dev.lorendb.muziko
 
 Page {
-    GridLayout {
+    ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
-        columns: 2
-        rowSpacing: 10
-        columnSpacing: 10
+        spacing: 0
 
-        Label {
-            text: qsTr("Daily practice set size")
+        ItemDelegate {
+            Layout.fillWidth: true
+            onClicked: settingsStack.push(aboutPage)
+
+            Label {
+                anchors.fill: parent
+                anchors.margins: 10
+                verticalAlignment: Label.AlignVCenter
+                text: qsTr("About")
+            }
         }
 
-        SpinBox {
-            from: 1
-            to: 100
-            value: Settings.dailySetSize
-            onValueChanged: Settings.dailySetSize = value
-            Layout.alignment: Qt.AlignRight
+        ItemDelegate {
+            Layout.fillWidth: true
+            implicitHeight: dailySetSizeRow.height + 20
+
+            RowLayout {
+                id: dailySetSizeRow
+
+                spacing: 10
+                anchors.fill: parent
+                anchors.margins: 10
+                height: dailySetSizeSpinbox.height
+
+                Label {
+                    text: qsTr("Daily practice set size")
+                    Layout.fillWidth: true
+                }
+
+                SpinBox {
+                    id: dailySetSizeSpinbox
+
+                    from: 1
+                    to: 100
+                    value: Settings.dailySetSize
+                    onValueChanged: Settings.dailySetSize = value
+                    Layout.alignment: Qt.AlignRight
+                }
+            }
         }
 
-        Item {
-            Layout.columnSpan: 2
-            Layout.fillHeight: true
-        }
+        Item { Layout.fillHeight: true }
     }
 }

@@ -206,7 +206,7 @@ Popup {
                 icon.source: Qt.resolvedUrl("icons/edit.svg")
                 onClicked: {
                     popupRoot.close();
-                    stack.push(editSongPage, {"song": popupRoot.song})
+                    songsStack.push(editSongPage, {"song": popupRoot.song})
                 }
                 Layout.fillWidth: true
             }

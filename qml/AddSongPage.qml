@@ -57,13 +57,13 @@ Page {
                 text: qsTr("OK")
                 onClicked: {
                     Muziko.songs.addSong(name.text, proficiency.value)
-                    stack.pop();
+                    songsStack.pop();
                 }
             }
 
             Button {
                 text: qsTr("Cancel")
-                onClicked: stack.pop()
+                onClicked: songsStack.pop()
             }
         }
     }

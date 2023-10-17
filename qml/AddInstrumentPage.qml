@@ -43,14 +43,14 @@ Page {
                 text: qsTr("OK")
                 onClicked: {
                     Muziko.addInstrument(name.text);
-                    stack.pop();
+                    songsStack.pop();
                 }
             }
 
             Button {
                 text: qsTr("Cancel")
                 visible: Muziko.songs != null
-                onClicked: stack.pop()
+                onClicked: songsStack.pop()
             }
         }
     }

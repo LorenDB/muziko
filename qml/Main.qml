@@ -20,7 +20,7 @@ ApplicationWindow {
 
     Component.onCompleted: {
         if (Muziko.songs == null)
-            stack.push(addInstrumentPage);
+            songsStack.push(addInstrumentPage);
     }
 
     footer: TabBar {
@@ -76,31 +76,53 @@ ApplicationWindow {
         EditSongPage {}
     }
 
+    Component {
+        id: settingsPage
+
+        SettingsPage {}
+    }
+
+    Component {
+        id: aboutPage
+
+        AboutPage {}
+    }
+
     StackLayout {
         anchors.fill: parent
         currentIndex: pageSwitcher.currentIndex
 
         StackView {
-            id: stack
+            id: songsStack
 
-            Keys.onReleased: event => {
-                if (event.key === Qt.Key_Back && StackLayout.isCurrentItem && stack.depth > 1)
-                {
-                    event.accepted = true;
-                    pop();
-                }
-            }
             initialItem: songsPage
         }
 
-        SettingsPage {
-            Keys.onReleased: event => {
-                if (event.key === Qt.Key_Back && StackLayout.isCurrentItem)
-                {
-                    event.accepted = true;
+        StackView {
+            id: settingsStack
+
+            initialItem: settingsPage
+        }
+    }
+
+    Shortcut {
+        sequences: ["Esc", "Back"]
+        enabled: {
+            if (pageSwitcher.currentIndex === 1)
+                return true;
+            return songsStack.depth > 1;
+        }
+
+        onActivated: {
+            if (pageSwitcher.currentIndex === 1)
+            {
+                if (settingsStack.depth > 1)
+                    settingsStack.pop();
+                else
                     pageSwitcher.currentIndex = 0;
-                }
             }
+            else
+                songsStack.pop()
         }
     }
 }

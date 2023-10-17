@@ -30,6 +30,7 @@ qt_add_qml_module(muziko
     URI dev.lorendb.muziko
     VERSION 1.0
     QML_FILES
+        qml/AboutPage.qml
         qml/AddInstrumentPage.qml
         qml/AddSongPage.qml
         qml/EditSongPage.qml
@@ -48,8 +49,12 @@ qt_add_qml_module(muziko
         qml/icons/delete.svg
         qml/icons/done.svg
         qml/icons/edit.svg
+        qml/icons/github.svg
+        qml/icons/liberapay.svg
+        qml/icons/logo.svg
         qml/icons/menu.svg
         qml/icons/null.svg
+        qml/icons/paypal.svg
         qml/icons/settings.svg
 )
 

@@ -84,13 +84,13 @@ Page {
                 onClicked: {
                     editSongRoot.song.name = name.text;
                     editSongRoot.song.proficiency = proficiency.value;
-                    stack.pop();
+                    songsStack.pop();
                 }
             }
 
             Button {
                 text: qsTr("Cancel")
-                onClicked: stack.pop()
+                onClicked: songsStack.pop()
             }
         }
     }
