@@ -66,6 +66,17 @@ set_target_properties(muziko PROPERTIES
 )
 
 if(ANDROID)
+    include(FetchContent)
+    FetchContent_Declare(
+      android_openssl
+      DOWNLOAD_EXTRACT_TIMESTAMP true
+      URL      https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
+    )
+    FetchContent_MakeAvailable(android_openssl)
+    include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
+
+    add_android_openssl_libraries(muziko)
+
     # This makes Android builds have unique versions for each architecture.
     # Taken from https://16bpp.net/blog/post/making-a-cross-platform-mobile-desktop-app-with-qt-62/
     # Figure out the platform & architecture code we need
