@@ -31,6 +31,7 @@ qt_add_qml_module(muziko
         qml/EditSongPage.qml
         qml/Main.qml
         qml/SettingsPage.qml
+        qml/SongCheckbox.qml
         qml/SongInfoPopup.qml
         qml/SongsPage.qml
     SOURCES

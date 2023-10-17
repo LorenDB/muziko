@@ -98,10 +98,6 @@ Page {
                 popup.open();
             }
 
-            TapHandler {
-                onLongPressed: stack.push(editSongPage, {"song": del.song})
-            }
-
             RowLayout {
                 id: row
 
@@ -185,20 +181,6 @@ Page {
                 }
             }
         }
-    }
-
-    component SongCheckbox : ToolButton {
-        checkable: true
-        background: Rectangle {
-            radius: width / 2
-            border.color: "#ffffff"
-            border.width: parent.checked ? 0 : 1
-            color: parent.checked ? null : "transparent"
-            gradient: parent.checked ? muzikoGradient : null
-            rotation: 45
-        }
-        // the null SVG is necessary because the ToolButton will render at a different size with no icon set
-        icon.source: Qt.resolvedUrl(checked ? "icons/done.svg" : "icons/null.svg")
     }
 
     Component {

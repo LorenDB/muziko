@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import dev.lorendb.muziko
 
 Popup {
@@ -11,7 +12,7 @@ Popup {
     anchors.centerIn: parent
     modal: true
     width: 400
-    height: 300
+    height: 500
 
     ColumnLayout {
         id: layout
@@ -22,7 +23,58 @@ Popup {
         Label {
             text: song.name
             font.bold: true
-            font.pixelSize: 18
+            font.pixelSize: 22
+            Layout.alignment: Qt.AlignCenter
+        }
+
+        RowLayout {
+            spacing: 10
+            Layout.fillWidth: true
+            Layout.margins: 10
+
+            Label {
+                text: qsTr("Last practiced")
+                Layout.fillWidth: true
+            }
+
+            Label {
+                text: popupRoot.song.lastPracticedString
+            }
+
+            SongCheckbox {
+                id: doneBtn
+
+                Layout.alignment: Qt.AlignVCenter
+                width: 20
+                height: 20
+                checked: popupRoot.song.practicedToday
+                onCheckedChanged: popupRoot.song.practicedToday = checked
+            }
+        }
+
+        RowLayout {
+            spacing: 10
+            Layout.fillWidth: true
+            Layout.margins: 10
+
+            Label {
+                text: qsTr("Proficiency")
+                Layout.fillWidth: true
+            }
+
+            Label {
+                text: popupRoot.song.proficiencyString
+                color: {
+                    if (popupRoot.song.proficiency == Song.LowProficiency)
+                        return Material.color(Material.Red);
+                    else if (popupRoot.song.proficiency == Song.MediumProficiency)
+                        return Material.color(Material.Orange);
+                    else if (popupRoot.song.proficiency == Song.HighProficiency)
+                        return Material.color(Material.Green);
+                    else
+                        return palette.text;
+                }
+            }
         }
 
         ListView {
@@ -46,6 +98,15 @@ Popup {
             model: popupRoot.song.links
             Layout.fillWidth: true
             Layout.fillHeight: true
+            boundsBehavior: Flickable.OvershootBounds
+
+            header: Label {
+                text: qsTr("Links")
+                font.bold: true
+                font.pixelSize: 18
+                width: linksList.width
+                horizontalAlignment: Text.AlignHCenter
+            }
 
             delegate: ItemDelegate {
                 width: linksList.width
@@ -107,9 +168,12 @@ Popup {
                             Layout.fillWidth: true
                             placeholderText: "Link to song"
                             focus: true
+                            onAccepted: setLinkBtn.clicked()
                         }
 
                         ToolButton {
+                            id: setLinkBtn
+
                             icon.source: Qt.resolvedUrl("icons/done.svg")
                             enabled: Muziko.isValidUrl(linkInput.text)
                             onClicked: {
@@ -129,6 +193,38 @@ Popup {
 
         Item {
             Layout.fillHeight: true
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            ToolButton {
+                icon.source: Qt.resolvedUrl("icons/edit.svg")
+                onClicked: {
+                    popupRoot.close();
+                    stack.push(editSongPage, {"song": popupRoot.song})
+                }
+                Layout.fillWidth: true
+            }
+
+            ToolButton {
+                icon.source: Qt.resolvedUrl("icons/delete.svg")
+                icon.color: Material.color(Material.Red)
+                onClicked: deleteDialog.open()
+                Layout.fillWidth: true
+            }
+        }
+    }
+
+    MessageDialog {
+        id: deleteDialog
+
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        text: qsTr("Are you sure you want to delete %1?").arg(popupRoot.song.name)
+        onAccepted: {
+            Muziko.songs.removeSong(popupRoot.song.name);
+            deleteDialog.close();
+            popupRoot.close();
         }
     }
 }
