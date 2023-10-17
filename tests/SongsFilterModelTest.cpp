@@ -115,10 +115,6 @@ private slots:
         rushE->setProficiency(Song::LowProficiency);
         m_model->addSong(rushE);
 
-        testFilterOrder();
-
-        m_filter->rebuildMappings();
-
         QVERIFY(m_filter->rowCount() == 5);
 
         QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), "Rush E");
