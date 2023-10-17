@@ -5,14 +5,15 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#include "FaviconProvider.h"
 #include "Settings.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setApplicationName("Muziko");
-    QCoreApplication::setApplicationVersion("0.0.1");
-    QCoreApplication::setOrganizationName("LorenDB");
-    QCoreApplication::setOrganizationDomain("lorendb.dev");
+    QCoreApplication::setApplicationName(QStringLiteral("Muziko"));
+    QCoreApplication::setApplicationVersion(QStringLiteral("0.0.1"));
+    QCoreApplication::setOrganizationName(QStringLiteral("LorenDB"));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("lorendb.dev"));
 
     QGuiApplication app(argc, argv);
 
@@ -26,7 +27,8 @@ int main(int argc, char *argv[])
         &app,
         [] { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    engine.loadFromModule("dev.lorendb.muziko", "Main");
+    engine.addImageProvider(QStringLiteral("favicon"), new FaviconProvider);
+    engine.loadFromModule(QStringLiteral("dev.lorendb.muziko"), QStringLiteral("Main"));
 
     return app.exec();
 }

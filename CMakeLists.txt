@@ -9,7 +9,7 @@ project(muziko VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Qml Quick QuickControls2 Test)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Qml Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
 
 set(MUZIKO_LIB_SRC
@@ -21,7 +21,11 @@ set(MUZIKO_LIB_SRC
     cpp/SongsModel.h
 )
 
-qt_add_executable(muziko cpp/main.cpp)
+qt_add_executable(muziko
+    cpp/FaviconProvider.cpp
+    cpp/FaviconProvider.h
+    cpp/main.cpp
+)
 qt_add_qml_module(muziko
     URI dev.lorendb.muziko
     VERSION 1.0
@@ -82,6 +86,7 @@ if(ANDROID)
 endif()
 
 target_link_libraries(muziko PRIVATE
+    Qt::Network
     Qt::Quick
     Qt::QuickControls2
 )

@@ -120,6 +120,10 @@ Popup {
                     anchors.margins: 10
                     spacing: 10
 
+                    Image {
+                        source: "image://favicon/" + modelData
+                    }
+
                     Label {
                         text: modelData
                         font.underline: true
