@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Dialogs
 import dev.lorendb.muziko
 
 Popup {
@@ -220,15 +219,18 @@ Popup {
         }
     }
 
-    MessageDialog {
+    Dialog {
         id: deleteDialog
 
-        buttons: MessageDialog.Ok | MessageDialog.Cancel
-        text: qsTr("Are you sure you want to delete %1?").arg(popupRoot.song.name)
+        anchors.centerIn: parent
+        standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: {
             Muziko.songs.removeSong(popupRoot.song.name);
-            deleteDialog.close();
             popupRoot.close();
+        }
+
+        Label {
+            text: qsTr("Are you sure you want to delete %1?").arg(popupRoot.song.name)
         }
     }
 }
