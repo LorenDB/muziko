@@ -177,5 +177,11 @@ bool Muziko::alreadyHasInstrument(const QString &name) const
 
 bool Muziko::isValidUrl(const QString &url)
 {
-    return QUrl{url}.isValid();
+    QUrl u{url};
+    if (!u.isValid())
+        return false;
+    auto validated = u.toString();
+    if (validated.isEmpty())
+        return false;
+    return true;
 }
