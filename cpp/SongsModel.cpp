@@ -223,79 +223,80 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
             &SongsModel::dataChanged,
             this,
             [this](const QModelIndex &left, const QModelIndex &right, const QList<int> &roles) {
-        if (roles.size() == 1)
-        {
-            auto role = roles[0];
-            switch (role)
-            {
-            case SongsModel::Name:
-                for (int i = left.row(); i <= right.row(); ++i)
+                if (roles.size() == 1)
                 {
-                    if (m_mappings.contains(i))
+                    auto role = roles[0];
+                    switch (role)
                     {
-                        auto idx = index(m_mappings.indexOf(i));
-                        emit dataChanged(idx, idx, roles);
-                    }
-                }
-                break;
-            case SongsModel::LastPracticed:
-                for (int sourceIdx = left.row(); sourceIdx <= right.row(); ++sourceIdx)
-                {
-                    if (m_mappings.contains(sourceIdx))
-                    {
-                        auto proxyIdx = m_mappings.indexOf(sourceIdx);
-                        Song *song = m_model->data(m_model->index(sourceIdx), SongsModel::SongObject).value<Song *>();
-                        int targetLoc = 0;
-                        for (; targetLoc < m_mappings.size(); ++targetLoc)
+                    case SongsModel::Name:
+                        for (int i = left.row(); i <= right.row(); ++i)
                         {
-                            if (targetLoc == proxyIdx)
-                                continue;
-                            auto cmp =
-                                m_model->data(m_model->index(m_mappings[targetLoc]), SongsModel::SongObject).value<Song *>();
-
-                            bool greaterThan = false;
-                            if (!song->lastPracticed().isNull() && cmp->lastPracticed().isNull())
-                                greaterThan = true;
-                            else if (song->lastPracticed().date() > cmp->lastPracticed().date())
-                                greaterThan = true;
-                            else if (song->lastPracticed().date() == cmp->lastPracticed().date())
+                            if (m_mappings.contains(i))
                             {
-                                if (song->proficiency() > cmp->proficiency())
-                                    greaterThan = true;
-                                else if (song->proficiency() == cmp->proficiency())
-                                    if (song->name() > cmp->name())
-                                        greaterThan = true;
+                                auto idx = index(m_mappings.indexOf(i));
+                                emit dataChanged(idx, idx, roles);
                             }
-
-                            if (!greaterThan)
-                                break;
                         }
+                        break;
+                    case SongsModel::LastPracticed:
+                        for (int sourceIdx = left.row(); sourceIdx <= right.row(); ++sourceIdx)
+                        {
+                            if (m_mappings.contains(sourceIdx))
+                            {
+                                auto proxyIdx = m_mappings.indexOf(sourceIdx);
+                                Song *song =
+                                    m_model->data(m_model->index(sourceIdx), SongsModel::SongObject).value<Song *>();
+                                int targetLoc = 0;
+                                for (; targetLoc < m_mappings.size(); ++targetLoc)
+                                {
+                                    if (targetLoc == proxyIdx)
+                                        continue;
+                                    auto cmp = m_model->data(m_model->index(m_mappings[targetLoc]), SongsModel::SongObject)
+                                                   .value<Song *>();
 
-                        if (targetLoc == m_mappings.size())
-                            --targetLoc;
-                        if (proxyIdx == targetLoc)
-                            continue;
+                                    bool greaterThan = false;
+                                    if (!song->lastPracticed().isNull() && cmp->lastPracticed().isNull())
+                                        greaterThan = true;
+                                    else if (song->lastPracticed().date() > cmp->lastPracticed().date())
+                                        greaterThan = true;
+                                    else if (song->lastPracticed().date() == cmp->lastPracticed().date())
+                                    {
+                                        if (song->proficiency() > cmp->proficiency())
+                                            greaterThan = true;
+                                        else if (song->proficiency() == cmp->proficiency())
+                                            if (song->name() > cmp->name())
+                                                greaterThan = true;
+                                    }
 
-                        // So... QAbstractListModel::beginMoveRows() has some *wacky* behavior if you are moving a row to a
-                        // different location in the same model. Specifically, moving anywhere other than 0 requires
-                        // inserting at the index *after* where you want to be, but only if you are moving down the list. I
-                        // don't get it. Why can't you just use a normal move like QList has???
-                        beginMoveRows({}, proxyIdx, proxyIdx, {}, targetLoc > proxyIdx ? targetLoc + 1 : targetLoc);
-                        m_mappings.move(proxyIdx, targetLoc);
-                        endMoveRows();
+                                    if (!greaterThan)
+                                        break;
+                                }
+
+                                if (targetLoc == m_mappings.size())
+                                    --targetLoc;
+                                if (proxyIdx == targetLoc)
+                                    continue;
+
+                                // So... QAbstractListModel::beginMoveRows() has some *wacky* behavior if you are moving a
+                                // row to a different location in the same model. Specifically, moving anywhere other than 0
+                                // requires inserting at the index *after* where you want to be, but only if you are moving
+                                // down the list. I don't get it. Why can't you just use a normal move like QList has???
+                                beginMoveRows({}, proxyIdx, proxyIdx, {}, targetLoc > proxyIdx ? targetLoc + 1 : targetLoc);
+                                m_mappings.move(proxyIdx, targetLoc);
+                                endMoveRows();
+                            }
+                        }
+                        break;
+                    case SongsModel::ProficiencyValue:
+                    case SongsModel::SongObject:
+                    default:
+                        rebuildMappings();
+                        break;
                     }
                 }
-                break;
-            case SongsModel::ProficiencyValue:
-            case SongsModel::SongObject:
-            default:
-                rebuildMappings();
-                break;
-            }
-        }
-        else
-            rebuildMappings();
-    });
+                else
+                    rebuildMappings();
+            });
     connect(Settings::instance(), &Settings::dailySetSizeChanged, this, &SongsFilterModel::rebuildMappings);
 }
 
@@ -348,8 +349,8 @@ void SongsFilterModel::rebuildMappings()
     // we don't spam new songs on the list infinitely
     auto getPracticeDate = [](Song *song) {
         return (song->dailySet() == QDate::currentDate() && song->lastPracticed().date() == QDate::currentDate() ?
-             song->practiceBeforeLast() :
-             song->lastPracticed());
+                    song->practiceBeforeLast() :
+                    song->lastPracticed());
     };
 
     auto sortedSongs = m_model->songs();
@@ -383,9 +384,8 @@ void SongsFilterModel::rebuildMappings()
 
     if (high.size() > 0)
     {
-        int numToAppend = std::min(isDailySetSizeOverflowed ? std::min(dailySetSize / 5, 2) :
-                                                              dailySetSize - low.size() - med.size(),
-                                   high.size());
+        int numToAppend = std::min(
+            isDailySetSizeOverflowed ? std::min(dailySetSize / 5, 2) : dailySetSize - low.size() - med.size(), high.size());
         for (int i = 0; i < numToAppend; ++i)
         {
             if (!high[i]->practicedToday())

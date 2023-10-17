@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: Loren Burkholder
+//
+// SPDX-License-Identifier: GPL-3.0
+
 #include "FaviconProvider.h"
 
 #include <QFile>
@@ -48,10 +52,7 @@ public:
         });
     }
 
-    QQuickTextureFactory *textureFactory() const override
-    {
-        return QQuickTextureFactory::textureFactoryForImage(m_image);
-    }
+    QQuickTextureFactory *textureFactory() const override { return QQuickTextureFactory::textureFactoryForImage(m_image); }
 
 private:
     QImage m_image;

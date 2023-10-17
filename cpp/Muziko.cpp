@@ -172,7 +172,7 @@ bool Muziko::alreadyHasInstrument(const QString &name) const
 {
     return std::find_if(m_songsModels.begin(), m_songsModels.end(), [&name](SongsModel *s) {
                return s->instrument().toLower() == name.toLower();
-    }) != m_songsModels.end();
+           }) != m_songsModels.end();
 }
 
 bool Muziko::isValidUrl(const QString &url)
