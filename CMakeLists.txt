@@ -53,13 +53,14 @@ qt_add_qml_module(muziko
         qml/icons/delete.svg
         qml/icons/done.svg
         qml/icons/edit.svg
-        qml/icons/github.svg
-        qml/icons/liberapay.svg
         qml/icons/logo.svg
         qml/icons/menu.svg
         qml/icons/null.svg
-        qml/icons/paypal.svg
         qml/icons/settings.svg
+
+        qml/icons/external/github.svg
+        qml/icons/external/liberapay.svg
+        qml/icons/external/paypal.svg
 )
 
 target_include_directories(muziko PRIVATE cpp)

@@ -55,7 +55,7 @@ Page {
             text: qsTr("View source code on GitHub")
             Layout.alignment: Qt.AlignHCenter
             onClicked: Qt.openUrlExternally("https://github.com/LorenDB/muziko")
-            icon.source: Qt.resolvedUrl("icons/github.svg")
+            icon.source: Qt.resolvedUrl("icons/external/github.svg")
             icon.color: "transparent"
         }
 
@@ -78,7 +78,7 @@ Page {
             text: qsTr("Donate with Liberapay")
             Layout.alignment: Qt.AlignHCenter
             onClicked: Qt.openUrlExternally("https://liberapay.com/LorenDB/donate")
-            icon.source: Qt.resolvedUrl("icons/liberapay.svg")
+            icon.source: Qt.resolvedUrl("icons/external/liberapay.svg")
             icon.color: "transparent"
         }
 
@@ -86,7 +86,7 @@ Page {
             text: qsTr("Donate with PayPal")
             Layout.alignment: Qt.AlignHCenter
             onClicked: Qt.openUrlExternally("https://www.paypal.com/donate/?business=LSTPU6GJTKCQE&no_recurring=0&item_name=If+you+use+and+enjoy+Muziko%2C+you+can+donate+to+show+your+support+and+to+help+fund+a+port+to+Apple+devices.&currency_code=USD")
-            icon.source: Qt.resolvedUrl("icons/paypal.svg")
+            icon.source: Qt.resolvedUrl("icons/external/paypal.svg")
             icon.color: "transparent"
         }
 
