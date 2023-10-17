@@ -1,9 +1,10 @@
 #include "FaviconProvider.h"
 
+#include <QFile>
+#include <QFileInfo>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QStandardPaths>
-#include <QFile>
 
 class FaviconResponse : public QQuickImageResponse
 {
@@ -16,14 +17,23 @@ public:
             return;
         }
 
+        auto cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + '/' + url.host() + ".ico";
+        if (QFileInfo info(cachePath); info.exists() && info.lastModified().daysTo(QDateTime::currentDateTime()) < 7)
+        {
+            m_image = QPixmap(cachePath).toImage();
+            if (!requestedSize.isEmpty())
+                m_image = m_image.scaled(requestedSize, Qt::KeepAspectRatio);
+            emit finished();
+            return;
+        }
+
         auto *nam = new QNetworkAccessManager{this};
         QNetworkRequest req{url};
         auto rep = nam->get(req);
-        connect(rep, &QNetworkReply::finished, this, [this, rep, requestedSize, url] {
+        connect(rep, &QNetworkReply::finished, this, [=, this] {
             if (rep->error() == QNetworkReply::NoError)
             {
                 auto data = rep->readAll();
-                auto cachePath = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + '/' + url.host() + ".ico";
                 QFile cache{cachePath};
                 if (cache.open(QIODevice::WriteOnly))
                 {
