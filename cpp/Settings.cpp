@@ -6,6 +6,8 @@
 
 #include <QSettings>
 
+#include "cpp/MuzikoVersion.h"
+
 Settings::Settings(QObject *parent)
     : QObject{parent}
 {
@@ -56,6 +58,7 @@ void Settings::save()
 {
     QSettings settings;
 
+    settings.setValue(QStringLiteral("settings_version"), MUZIKO_VERSION_STR);
     settings.setValue(QStringLiteral("daily_set_size"), m_dailySetSize);
 }
 
