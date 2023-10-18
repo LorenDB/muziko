@@ -14,6 +14,9 @@
 Settings::Settings(QObject *parent)
     : QObject{parent}
 {
+    if (!s_instance)
+        s_instance = this;
+
     load();
 }
 
@@ -25,7 +28,7 @@ Settings::~Settings()
 Settings *Settings::instance()
 {
     if (!s_instance)
-        s_instance = new Settings;
+        new Settings;
     return s_instance;
 }
 
