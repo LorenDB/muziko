@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include "Muziko.h"
 #include "cpp/MuzikoVersion.h"
@@ -81,40 +82,34 @@ void Settings::setDailySetSize(int dailySetSize)
     emit dailySetSizeChanged();
 }
 
-void Settings::backup(const QString &path) const
+void Settings::backup() const
 {
     save();
     Muziko::instance()->saveSongs();
 
-    auto absolutePath = path;
-    if (absolutePath.startsWith(QStringLiteral("file://")))
-        absolutePath.remove(QStringLiteral("file://"));
-    absolutePath = QDir(absolutePath).absolutePath() + "/muziko-backup.ini";
+    const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/muziko-backup.ini";
 
-    if (!QFileInfo::exists(absolutePath))
+    if (!QFileInfo::exists(path))
     {
-        QDir().mkpath(QFileInfo(absolutePath).dir().path());
-        QFile f{absolutePath};
+        QDir().mkpath(QFileInfo(path).dir().path());
+        QFile f{path};
         f.open(QIODevice::WriteOnly);
         f.close();
     }
 
     QSettings settings;
-    QSettings backupSettings{absolutePath, QSettings::IniFormat};
+    QSettings backupSettings{path, QSettings::IniFormat};
     const auto keys = settings.allKeys();
     for (const auto &key : keys)
         backupSettings.setValue(key, settings.value(key));
 }
 
-void Settings::restore(const QString &file)
+void Settings::restore()
 {
-    auto absolutePath = file;
-    if (absolutePath.startsWith(QStringLiteral("file://")))
-        absolutePath.remove(QStringLiteral("file://"));
-    absolutePath = QFileInfo(absolutePath).absoluteFilePath();
+    const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/muziko-backup.ini";
 
     QSettings settings;
-    QSettings backupSettings{absolutePath, QSettings::IniFormat};
+    QSettings backupSettings{path, QSettings::IniFormat};
     settings.clear();
     const auto keys = backupSettings.allKeys();
     for (const auto &key : keys)

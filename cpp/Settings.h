@@ -27,8 +27,8 @@ public:
     int dailySetSize() const;
     void setDailySetSize(int dailySetSize);
 
-    Q_INVOKABLE void backup(const QString &path) const;
-    Q_INVOKABLE void restore(const QString &file);
+    Q_INVOKABLE void backup() const;
+    Q_INVOKABLE void restore();
 
 signals:
     void dailySetSizeChanged();
