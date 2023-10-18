@@ -10,7 +10,7 @@
 class Settings : public QObject
 {
     Q_OBJECT
-    QML_ELEMENT
+    QML_NAMED_ELEMENT(MuzikoSettings)
     QML_SINGLETON
 
     Q_PROPERTY(int dailySetSize READ dailySetSize WRITE setDailySetSize NOTIFY dailySetSizeChanged FINAL)
@@ -22,10 +22,13 @@ public:
     static Settings *create(QQmlEngine *engine, QJSEngine *);
 
     void load();
-    void save();
+    void save() const;
 
     int dailySetSize() const;
     void setDailySetSize(int dailySetSize);
+
+    Q_INVOKABLE void backup(const QString &path) const;
+    Q_INVOKABLE void restore(const QString &file);
 
 signals:
     void dailySetSizeChanged();

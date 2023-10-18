@@ -9,6 +9,9 @@
 Muziko::Muziko(QObject *parent)
     : QAbstractListModel{parent}
 {
+    if (!s_instance)
+        s_instance = this;
+
     loadSongs();
     if (m_songsModels.size() > 0)
         m_filter = new SongsFilterModel{m_songsModels[m_currentModel]};
@@ -22,7 +25,7 @@ Muziko::~Muziko()
 Muziko *Muziko::instance()
 {
     if (!s_instance)
-        s_instance = new Muziko;
+        new Muziko;
     return s_instance;
 }
 
@@ -73,6 +76,11 @@ SongsModel *Muziko::songs() const
 
 void Muziko::loadSongs()
 {
+    beginResetModel();
+    for (const auto model : m_songsModels)
+        model->deleteLater();
+    m_songsModels.clear();
+
     QSettings settings;
     settings.beginGroup(QStringLiteral("instruments"));
     const auto instruments = settings.childGroups();
@@ -110,6 +118,8 @@ void Muziko::loadSongs()
     setCurrentInstrument(settings.value("last_used_instrument").toString());
     if (m_currentModel == -1 && m_songsModels.size() > 0)
         setCurrentInstrument(m_songsModels[0]->instrument());
+
+    endResetModel();
 }
 
 void Muziko::saveSongs() const

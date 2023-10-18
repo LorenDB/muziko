@@ -83,6 +83,12 @@ ApplicationWindow {
     }
 
     Component {
+        id: backupRestorePage
+
+        BackupRestorePage {}
+    }
+
+    Component {
         id: aboutPage
 
         AboutPage {}

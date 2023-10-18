@@ -5,13 +5,24 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Dialogs
 import dev.lorendb.muziko
 
 Page {
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
+
+        ItemDelegate {
+            Layout.fillWidth: true
+            onClicked: settingsStack.push(backupRestorePage)
+
+            Label {
+                anchors.fill: parent
+                anchors.margins: 10
+                verticalAlignment: Label.AlignVCenter
+                text: qsTr("Backup and restore")
+            }
+        }
 
         ItemDelegate {
             Layout.fillWidth: true
@@ -47,8 +58,8 @@ Page {
 
                     from: 1
                     to: 100
-                    value: Settings.dailySetSize
-                    onValueChanged: Settings.dailySetSize = value
+                    value: MuzikoSettings.dailySetSize
+                    onValueChanged: MuzikoSettings.dailySetSize = value
                     Layout.alignment: Qt.AlignRight
                 }
             }

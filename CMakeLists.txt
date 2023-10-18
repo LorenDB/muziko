@@ -37,6 +37,7 @@ qt_add_qml_module(muziko
         qml/AboutPage.qml
         qml/AddInstrumentPage.qml
         qml/AddSongPage.qml
+        qml/BackupRestorePage.qml
         qml/EditSongPage.qml
         qml/Main.qml
         qml/SettingsPage.qml
