@@ -102,8 +102,10 @@ if(ANDROID)
       set(ANDROID_PLATFORM_ARCHITECTURE_CODE "164")
     endif()
 
-    # Slap the above together with a version code (major and minor only)
-    set(ANDROID_VERSION_CODE "${ANDROID_PLATFORM_ARCHITECTURE_CODE}${PROJECT_VERSION_MAJOR}${PROJECT_VERSION_MINOR}")
+    # Slap the above together with a version code
+    # NOTE: we are inserting 7s to make sure that every major.minor.patch gets processed as a unique number. Basically, they are like demarcators
+    # for the different parts of the version number. Without this, Google Play AABs will end up conflicting (e.g. 1.20.0 would equal 12.0.0).
+    set(ANDROID_VERSION_CODE "${ANDROID_PLATFORM_ARCHITECTURE_CODE}7${PROJECT_VERSION_MAJOR}7${PROJECT_VERSION_MINOR}7${PROJECT_VERSION_PATCH}7")
     set_property(TARGET muziko APPEND PROPERTY QT_ANDROID_VERSION_CODE ${ANDROID_VERSION_CODE})
 endif()
 
