@@ -4,7 +4,7 @@
 
 # basic cmake setup
 cmake_minimum_required(VERSION 3.16)
-project(muziko VERSION 0.2.0 LANGUAGES CXX)
+project(muziko VERSION 0.1.0 LANGUAGES CXX)
 
 set(muziko_VERSION_STR "${muziko_VERSION_MAJOR}.${muziko_VERSION_MINOR}.${muziko_VERSION_PATCH}")
 configure_file(cmake/MuzikoVersion.h.in cpp/MuzikoVersion.h)
