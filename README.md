@@ -6,6 +6,18 @@
 
 Muziko is an app designed to help you practice playing any musical instrument. It does so by taking all the songs you know and giving you a list of songs every day based on how well you know each song.
 
+## How it works
+
+Muziko works more or less on the principle of spaced repetition; however, the approach is unique enough to warrant a full explanation.
+
+When you start Muziko, you will need to enter the name of your instrument. Once done, you can enter as many songs as you would like into Muziko. You will be asked for the song name and your level of proficiency (low, medium, or high). Muziko will then give you a list of songs every day (by default, 5 songs) to practice. The song choosing algorithm works as follows:
+
+- Low proficiency songs are practiced daily.
+- Medium proficiency songs are practiced several times per week.
+- High proficiency songs are not practiced at a fixed interval; instead, Muziko cycles through them at the rate of 1-2 per day. The more high proficiency songs you have, the longer it will take you to cycle through them all.
+
+Muziko also lets you store links to aid your practice; for example, you might save a link to a jam track YouTube video or to an online learning platform for each song.
+
 ## Get the app
 
 Muziko is available for Android devices (and Chromebooks) on the [Google Play Store](https://play.google.com/store/apps/details?id=dev.lorendb.muziko).
