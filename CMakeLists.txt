@@ -131,6 +131,15 @@ if(ANDROID)
     # for the different parts of the version number. Without this, Google Play AABs will end up conflicting (e.g. 1.20.0 would equal 12.0.0).
     set(ANDROID_VERSION_CODE "${ANDROID_PLATFORM_ARCHITECTURE_CODE}7${PROJECT_VERSION_MAJOR}7${PROJECT_VERSION_MINOR}7${PROJECT_VERSION_PATCH}7")
     set_property(TARGET muziko APPEND PROPERTY QT_ANDROID_VERSION_CODE ${ANDROID_VERSION_CODE})
+
+    add_library(MuzikoAndroidService android/cpp/AndroidNotifierService.cpp ${MUZIKO_LIB_SRC})
+    target_link_libraries(MuzikoAndroidService PRIVATE
+        Qt::Core
+        Qt::CorePrivate
+        Qt::Network
+        Qt::Quick
+        Qt::QuickControls2
+    )
 endif()
 
 target_link_libraries(muziko PRIVATE
