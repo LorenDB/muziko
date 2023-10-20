@@ -126,9 +126,13 @@ Popup {
 
                     Image {
                         source: "image://favicon/" + modelData
+                        Layout.preferredWidth: linkLabel.height
+                        Layout.preferredHeight: linkLabel.height
                     }
 
                     Label {
+                        id: linkLabel
+
                         text: modelData
                         font.underline: true
                         color: Material.color(Material.Blue)
