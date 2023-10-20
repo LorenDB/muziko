@@ -53,7 +53,9 @@ Page {
         standardButtons: Dialog.Ok
 
         Label {
+            anchors.fill: parent
             text: qsTr("Your songs and settings have been backed up.")
+            wrapMode: Text.WordWrap
         }
     }
 
@@ -71,7 +73,9 @@ Page {
         }
 
         Label {
+            anchors.fill: parent
             text: qsTr("Are you sure you want to restore? Any existing songs or settings will be lost!")
+            wrapMode: Text.WordWrap
         }
     }
 
@@ -82,7 +86,9 @@ Page {
         standardButtons: Dialog.Ok
 
         Label {
+            anchors.fill: parent
             text: qsTr("Your songs and settings have been restored.")
+            wrapMode: Text.WordWrap
         }
     }
 }
