@@ -10,6 +10,7 @@
 #include <QQmlEngine>
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
+#include <QTimer>
 
 class Song : public QObject
 {
@@ -140,6 +141,6 @@ signals:
 private:
     // The keys of this list map directly to the proxy rows. The value for each key is the source row.
     QList<int> m_mappings;
-
     SongsModel *m_model;
+    QTimer m_beginningOfDayUpdate;
 };
