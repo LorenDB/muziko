@@ -189,4 +189,34 @@ Page {
 
         SongInfoPopup {}
     }
+
+    ConfettiEffect {
+        id: confettiEffect
+
+        anchors.fill: parent
+        shouldEffectsRun: false
+
+        Connections {
+            function onDailySetDone()
+            {
+                confettiEffect.shouldEffectsRun = true;
+                confettiEffect.pulseConfetti();
+                endConfettiTimer.start();
+            }
+
+            target: Muziko.songsFilter
+        }
+
+        Timer {
+            id: endConfettiTimer
+
+            interval: confettiEffect.maxLifespan
+            repeat: false
+            running: false
+            onTriggered: {
+                confettiEffect.shouldEffectsRun = false;
+                confettiEffect.removeParticles();
+            }
+        }
+    }
 }

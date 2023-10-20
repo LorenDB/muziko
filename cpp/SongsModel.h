@@ -134,6 +134,9 @@ public:
 
     void rebuildMappings();
 
+signals:
+    void dailySetDone();
+
 private:
     // The keys of this list map directly to the proxy rows. The value for each key is the source row.
     QList<int> m_mappings;

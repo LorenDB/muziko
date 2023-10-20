@@ -39,6 +39,7 @@ qt_add_qml_module(muziko
         qml/AddInstrumentPage.qml
         qml/AddSongPage.qml
         qml/BackupRestorePage.qml
+        qml/ConfettiEffect.qml
         qml/EditSongPage.qml
         qml/Main.qml
         qml/SettingsPage.qml
@@ -63,6 +64,8 @@ qt_add_qml_module(muziko
         qml/icons/external/github.svg
         qml/icons/external/liberapay.svg
         qml/icons/external/paypal.svg
+
+        qml/res/confettiparticle.svg
 )
 
 target_include_directories(muziko PRIVATE cpp)

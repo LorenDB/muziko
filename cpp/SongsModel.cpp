@@ -287,6 +287,14 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
                                 endMoveRows();
                             }
                         }
+
+                        if (std::all_of(m_mappings.begin(), m_mappings.end(), [this](const int idx) {
+                                return m_model->data(m_model->index(idx), SongsModel::SongObject)
+                                           .value<Song *>()
+                                           ->lastPracticed()
+                                           .date() == QDate::currentDate();
+                            }))
+                            emit dailySetDone();
                         break;
                     case SongsModel::ProficiencyValue:
                     case SongsModel::SongObject:
