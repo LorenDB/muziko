@@ -128,8 +128,7 @@ install(TARGETS muziko
 
 enable_testing(true)
 
-qt_add_executable(SongsFilterModelTest tests/SongsFilterModelTest.cpp ${MUZIKO_LIB_SRC}
-    qml/SettingsPage.qml)
+qt_add_executable(SongsFilterModelTest tests/SongsFilterModelTest.cpp ${MUZIKO_LIB_SRC})
 target_include_directories(SongsFilterModelTest PRIVATE cpp)
 add_test(NAME SongsFilterModelTest COMMAND SongsFilterModelTest)
 target_link_libraries(SongsFilterModelTest PRIVATE Qt::Test Qt::Qml)
