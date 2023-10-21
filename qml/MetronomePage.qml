@@ -34,6 +34,15 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.margins: 30
+            onPressedChanged: {
+                if (pressed)
+                {
+                    metronomeLoop.tick = 0;
+                    metronomeLoop.stop();
+                }
+                else
+                    metronomeLoop.start();
+            }
 
             ColumnLayout {
                 anchors.centerIn: bpm.background
