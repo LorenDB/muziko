@@ -13,6 +13,8 @@ ApplicationWindow {
 
     width: 550
     height: 700
+    minimumWidth: 400
+    minimumHeight: 600
     visible: true
     title: "Muziko"
     Material.theme: Material.Dark
@@ -35,6 +37,11 @@ ApplicationWindow {
 
         TabButton {
             icon.source: Qt.resolvedUrl("icons/calendar.svg")
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        TabButton {
+            icon.source: Qt.resolvedUrl("icons/metronome.svg")
             Layout.alignment: Qt.AlignHCenter
         }
 
@@ -105,6 +112,8 @@ ApplicationWindow {
             initialItem: songsPage
         }
 
+        MetronomePage {}
+
         StackView {
             id: settingsStack
 
@@ -115,21 +124,29 @@ ApplicationWindow {
     Shortcut {
         sequences: ["Esc", "Back"]
         enabled: {
-            if (pageSwitcher.currentIndex === 1)
+            if (pageSwitcher.currentIndex !== 0)
                 return true;
             return songsStack.depth > 1;
         }
 
         onActivated: {
-            if (pageSwitcher.currentIndex === 1)
+            switch (pageSwitcher.currentIndex)
             {
+            case 0:
+                songsStack.pop();
+                break;
+            case 1:
                 if (settingsStack.depth > 1)
                     settingsStack.pop();
                 else
                     pageSwitcher.currentIndex = 0;
+                break;
+            case 2:
+                pageSwitcher.currentIndex = 0;
+                break;
+            default:
+                break;
             }
-            else
-                songsStack.pop()
         }
     }
 }

@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Network Qml Quick QuickControls2 Test)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Multimedia Network Qml Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
 
 set(MUZIKO_LIB_SRC
@@ -42,6 +42,7 @@ qt_add_qml_module(muziko
         qml/ConfettiEffect.qml
         qml/EditSongPage.qml
         qml/Main.qml
+        qml/MetronomePage.qml
         qml/SettingsPage.qml
         qml/SongCheckbox.qml
         qml/SongInfoPopup.qml
@@ -58,7 +59,11 @@ qt_add_qml_module(muziko
         qml/icons/edit.svg
         qml/icons/logo.svg
         qml/icons/menu.svg
+        qml/icons/metronome.svg
         qml/icons/null.svg
+        qml/icons/pause.svg
+        qml/icons/play.svg
+        qml/icons/remove.svg
         qml/icons/settings.svg
 
         qml/icons/external/github.svg
@@ -66,6 +71,8 @@ qt_add_qml_module(muziko
         qml/icons/external/paypal.svg
 
         qml/res/confettiparticle.svg
+        qml/res/metronome.wav
+        qml/res/metronome-high.wav
 )
 
 target_include_directories(muziko PRIVATE cpp)
@@ -114,6 +121,7 @@ if(ANDROID)
 endif()
 
 target_link_libraries(muziko PRIVATE
+    Qt::Multimedia
     Qt::Network
     Qt::Quick
     Qt::QuickControls2
