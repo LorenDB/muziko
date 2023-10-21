@@ -3,6 +3,7 @@
 ![Muziko logo](./qml/icons/logo-128.png)
 
 [![Donate using Liberapay](https://img.shields.io/badge/donate-liberapay-yellow)](https://liberapay.com/LorenDB/donate) [![Donate using Paypal](https://img.shields.io/badge/donate-paypal-blue)](https://paypal.me/lorendev)
+[![Get it on Google Play](https://img.shields.io/badge/get%20it%20on-google%20play-green)](https://play.google.com/store/apps/details?id=dev.lorendb.muziko)
 
 Muziko is an app designed to help you practice playing any musical instrument. It does so by taking all the songs you know and giving you a list of songs every day based on how well you know each song.
 
