@@ -88,6 +88,46 @@ Page {
                 }
             }
         }
+
+        RowLayout {
+            spacing: 10
+            Layout.alignment: Qt.AlignHCenter
+
+            ComboBox {
+                id: upperTimeSignature
+
+                model: ListModel {
+                    ListElement { value: 2 }
+                    ListElement { value: 3 }
+                    ListElement { value: 4 }
+                    ListElement { value: 5 }
+                    ListElement { value: 6 }
+                    ListElement { value: 7 }
+                    ListElement { value: 8 }
+                    ListElement { value: 9 }
+                    ListElement { value: 10 }
+                    ListElement { value: 11 }
+                    ListElement { value: 12 }
+                }
+                currentIndex: 2
+            }
+
+            Label {
+                text: "/"
+                font.pixelSize: 22
+            }
+
+            ComboBox {
+                id: lowerTimeSignature
+
+                model: ListModel {
+                    ListElement { value: 2 }
+                    ListElement { value: 4 }
+                    ListElement { value: 8 }
+                }
+                currentIndex: 1
+            }
+        }
     }
 
     Timer {
@@ -96,11 +136,11 @@ Page {
         property int tick: 0
 
         running: false
-        interval: 60000 / bpm.value
+        interval: 60000 / (bpm.value * lowerTimeSignature.currentValue / 4)
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            if (tick % 4 == 0)
+            if (tick % upperTimeSignature.currentValue == 0)
             {
                 tick = 0;
                 metronomeSoundHigh.play();
