@@ -136,13 +136,13 @@ ApplicationWindow {
                 songsStack.pop();
                 break;
             case 1:
+                pageSwitcher.currentIndex = 0;
+                break;
+            case 2:
                 if (settingsStack.depth > 1)
                     settingsStack.pop();
                 else
                     pageSwitcher.currentIndex = 0;
-                break;
-            case 2:
-                pageSwitcher.currentIndex = 0;
                 break;
             default:
                 break;
