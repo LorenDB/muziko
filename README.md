@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Loren Burkholder <computersemiexpert@outlook.com>
+
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 # Muziko
 
 ![Muziko logo](./qml/icons/logo-128.png)

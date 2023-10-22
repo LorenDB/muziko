@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
+# SPDX-FileCopyrightText: 2023 Nheko Contributers
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 # taken from https://github.com/Nheko-Reborn/nheko
 
 # Runs the license update

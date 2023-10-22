@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2023 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 // SPDX-FileCopyrightText: Loren Burkholder
 //
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "FaviconProvider.h"
 

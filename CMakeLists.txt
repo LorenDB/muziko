@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Loren Burkholder
 # SPDX-FileCopyrightText: 2023 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
 #
-# SPDX-License-Identifier: GPL-3.0
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # basic cmake setup
 cmake_minimum_required(VERSION 3.16)

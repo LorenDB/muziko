@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: muziko
+Upstream-Contact: Loren Burkholder <computersemiexpert@outlook.com>
+Source: https://github.com/LorenDB/muziko
+
+Files: android/*
+Copyright: 2023 Loren Burkholder <computersemiexpert@outlook.com>
+License: GPL-3.0-or-later
