@@ -81,6 +81,7 @@ Page {
                                 metronomeLoop.stop();
                             else
                                 metronomeLoop.start();
+                            Muziko.androidSetBlockSleep(metronomeLoop.running);
                         }
                     }
 

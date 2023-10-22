@@ -7,6 +7,12 @@
 
 #include <QSettings>
 
+#ifdef Q_OS_ANDROID
+#include <QJniEnvironment>
+#include <QJniObject>
+#include <QCoreApplication>
+#endif
+
 Muziko::Muziko(QObject *parent)
     : QAbstractListModel{parent}
 {
@@ -195,4 +201,31 @@ bool Muziko::isValidUrl(const QString &url)
     if (validated.isEmpty())
         return false;
     return true;
+}
+
+void Muziko::androidSetBlockSleep(bool block)
+{
+#ifdef Q_OS_ANDROID
+    // This implementation copied from https://stackoverflow.com/a/38846485/12533859
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([block] {
+        QJniObject context = QNativeInterface::QAndroidApplication::context();
+        if (context.isValid())
+        {
+            QJniObject window = context.callObjectMethod("getWindow", "()Landroid/view/Window;");
+            if (window.isValid())
+            {
+                const int FLAG_KEEP_SCREEN_ON = 128;
+                if (block)
+                    window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+                else
+                    window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+            }
+        }
+        QJniEnvironment env;
+        if (env->ExceptionCheck())
+            env->ExceptionClear();
+    });
+#else
+    Q_UNUSED(block)
+#endif
 }

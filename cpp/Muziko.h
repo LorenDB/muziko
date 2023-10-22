@@ -48,6 +48,7 @@ public:
     Q_INVOKABLE bool alreadyHasInstrument(const QString &name) const;
 
     Q_INVOKABLE bool isValidUrl(const QString &url);
+    Q_INVOKABLE void androidSetBlockSleep(bool block);
 
     Q_INVOKABLE QString muzikoVersion() const { return QStringLiteral(MUZIKO_VERSION_STR); }
 

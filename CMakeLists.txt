@@ -121,6 +121,7 @@ if(ANDROID)
 endif()
 
 target_link_libraries(muziko PRIVATE
+    Qt::CorePrivate
     Qt::Multimedia
     Qt::Network
     Qt::Quick
