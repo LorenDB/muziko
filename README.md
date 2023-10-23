@@ -37,6 +37,10 @@ For other platforms (Windows, Mac, Linux, etc.), binaries are not available righ
 
 Muziko is built with C++ and Qt, so once you have installed a standard Qt toolchain, run the normal `mkdir build && cd build && cmake .. && cmake --build .` to build Muziko. Or you could open the project in Qt Creator and build it that way, which probably would be the easiest way to build for Android or iOS.
 
+## Contact
+
+You can chat about Muziko at [#muziko:nheko.im](https://matrix.to/#/#muziko:nheko.im).
+
 ## Screenshots
 
 See the [Google Play Store listing](https://play.google.com/store/apps/details?id=dev.lorendb.muziko) for a few screenshots of the UI. Please note that as Muziko is still a work in progress, the UI is likely to change as different elements get cleaned up and new features get added.
