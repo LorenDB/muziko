@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: 2023 Loren Burkholder <computersemiexpert@outlook.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Linux build
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      packageRelease:
+        description: 'Package binaries for release and upload them'
+        required: false
+        default: false
+
+jobs:
+  linux:
+    name: Linux desktop
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.*'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ ..
+          cmake --build . --config RelWithDebInfo
+          cd ..
+
+      # now we can deploy the release if necessary
+      - name: Install LinuxDeploy
+        if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
+        uses: miurahr/install-linuxdeploy-action@v1
+        with:
+          plugins: qt appimage
+          dir: ${{ github.workspace }}
+
+      - name: Install FUSE
+        if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          sudo apt-add-repository universe
+          sudo apt install libfuse2 -y
+
+      - name: Build release package
+        if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          linuxdeploy-x86_64.AppImage --plugin qt --output appimage --desktop-file muziko.desktop --icon-file qml/icons/logo.svg --executable build/muziko --appdir AppDir
+
+      - name: Upload release package
+        if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Linux package
+          path: muziko-*-x86_64.AppImage
+          retention-days: 7 # if it's needed more than a week later, we can just rerun the build manually
