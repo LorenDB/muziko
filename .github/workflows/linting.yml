@@ -38,6 +38,11 @@ jobs:
         run: |
           ./format.sh
 
+      - name: Codespell with annotations
+        uses: codespell-project/actions-codespell@v2.0
+        with:
+          skip: ./build
+
       - name: Install reuse
         run: |
           sudo apt-add-repository universe
