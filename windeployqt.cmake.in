@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: Loren Burkholder
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# this comes from https://www.ics.com/blog/revisiting-qt-installer-framework-cmake
+set(WINDEPLOYQT "@WINDEPLOYQT@")
+set(WINDEPLOYQT_COMPONENT "@WINDEPLOYQT_COMPONENT@")
+set(CMAKE_CURRENT_SOURCE_DIR "@CMAKE_CURRENT_SOURCE_DIR@")
+
+execute_process(COMMAND ${WINDEPLOYQT} ${WINDEPLOYQT_COMPONENT}/data/bin WORKING_DIRECTORY ${CPACK_TEMPORARY_INSTALL_DIRECTORY}/packages)
