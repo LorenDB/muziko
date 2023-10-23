@@ -1,0 +1,73 @@
+# SPDX-FileCopyrightText: 2023 Loren Burkholder <computersemiexpert@outlook.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: macOS build
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      packageRelease:
+        description: 'Package binaries for release and upload them'
+        required: false
+        default: false
+
+jobs:
+  macos:
+    name: macOS desktop
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.*'
+          cache: true
+          modules: 'qtmultimedia'
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+          cmake --build . --config RelWithDebInfo
+          cd ..
+
+      # If Apple didn't insist on bundling apps as folders, this wouldn't be necessary; however, this is done to ensure that the .app folder remains intact
+      - name: Prepare binary for uploading
+        run: |
+          mkdir upload_dir
+          cd upload_dir
+          cp -r ../build/muziko.app .
+          cd ..
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: macOS binary
+          path: upload_dir
+          retention-days: 7
+
+      - name: Build release package
+        if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          mkdir release_dir
+          cd release_dir
+          cp -r ../build/muziko.app .
+          macdeployqt muziko.app -dmg
+          cd ..
+
+      - name: Upload release package
+        if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: macOS package
+          path: release_dir/muziko.dmg
+          retention-days: 7
