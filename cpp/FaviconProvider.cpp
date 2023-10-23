@@ -32,9 +32,9 @@ public:
             return;
         }
 
-        auto *nam = new QNetworkAccessManager{this};
+        auto *networkManager = new QNetworkAccessManager{this};
         QNetworkRequest req{url};
-        auto rep = nam->get(req);
+        auto rep = networkManager->get(req);
         connect(rep, &QNetworkReply::finished, this, [=, this] {
             if (rep->error() == QNetworkReply::NoError)
             {

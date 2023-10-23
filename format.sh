@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-# SPDX-FileCopyrightText: 2023 Nheko Contributers
+# SPDX-FileCopyrightText: 2023 Nheko Contributors
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
