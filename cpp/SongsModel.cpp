@@ -13,12 +13,12 @@ Song::Song(QObject *parent)
 
 QString Song::lastPracticedString() const
 {
-    if (m_lastPracticed.isNull())
+    if (m_practices.isEmpty())
         return tr("Never");
-    else if (m_lastPracticed.date().year() != QDate::currentDate().year())
-        return m_lastPracticed.toString("MMMM d yyyy");
+    else if (m_practices.constLast().date().year() != QDate::currentDate().year())
+        return m_practices.constLast().toString("MMMM d yyyy");
     else
-        return m_lastPracticed.toString("MMMM d");
+        return m_practices.constLast().toString("MMMM d");
 }
 
 QString Song::proficiencyString() const
@@ -46,19 +46,18 @@ void Song::setName(const QString &newName)
 
 void Song::setLastPracticed(const QDateTime &newLastPracticed)
 {
-    if (m_lastPracticed == newLastPracticed)
+    if (m_practices.size() > 0 && m_practices.constLast() == newLastPracticed)
         return;
-    setPracticeBeforeLast(m_lastPracticed);
-    m_lastPracticed = newLastPracticed;
+    m_practices.push_back(newLastPracticed);
     emit lastPracticedChanged();
 }
 
-void Song::setPracticeBeforeLast(const QDateTime &newDateTime)
+void Song::setPractices(const QList<QDateTime> &practices)
 {
-    if (m_practiceBeforeLast == newDateTime)
+    if (m_practices == practices)
         return;
-    m_practiceBeforeLast = newDateTime;
-    emit practiceBeforeLastChanged();
+    m_practices = practices;
+    emit lastPracticedChanged();
 }
 
 void Song::setDailySet(const QDate &day)
@@ -71,12 +70,11 @@ void Song::setDailySet(const QDate &day)
 
 void Song::setPracticedToday(bool state)
 {
-    if (state && m_lastPracticed.date() != QDate::currentDate())
+    if (state && lastPracticed().date() != QDate::currentDate())
         setLastPracticed(QDateTime::currentDateTime());
-    else if (!state && m_lastPracticed.date() == QDate::currentDate())
+    else if (!state && (m_practices.size() > 0 && lastPracticed().date() == QDate::currentDate()))
     {
-        // Manually set m_lastPracticed to avoid changing m_practiceBeforeLast
-        m_lastPracticed = m_practiceBeforeLast;
+        m_practices.pop_back();
         emit lastPracticedChanged();
     }
 }

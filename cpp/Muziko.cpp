@@ -89,6 +89,9 @@ void Muziko::loadSongs()
     m_songsModels.clear();
 
     QSettings settings;
+
+    QString settingsVersion = settings.value(QStringLiteral("settings_version")).toString();
+
     settings.beginGroup(QStringLiteral("instruments"));
     const auto instruments = settings.childGroups();
     for (const auto &instrument : instruments)
@@ -102,7 +105,22 @@ void Muziko::loadSongs()
             auto s = new Song{this};
             s->setName(song);
             settings.beginGroup(song);
-            s->setLastPracticed(settings.value(QStringLiteral("last_practiced")).toDateTime());
+
+            // TODO: remove this migration at some point. It was added for 0.1.1, so probably it can be removed by 0.3.0
+            // safely (especially given the small user base, which means that there is a low chance of users missing an
+            // update). However, it's always better safe than sorry, so maybe it should stick around for a little longer than
+            // that.
+            if (settingsVersion == QStringLiteral("0.1.0") && !settings.contains(QStringLiteral("practices")))
+                s->setLastPracticed(settings.value(QStringLiteral("last_practiced")).toDateTime());
+            else
+            {
+                auto practiceVariant = settings.value(QStringLiteral("practices")).toList();
+                QList<QDateTime> practices;
+                for (const auto &p : practiceVariant)
+                    practices.append(p.toDateTime());
+                s->setPractices(practices);
+            }
+
             s->setProficiency(settings.value(QStringLiteral("proficiency"), Song::Proficiency::MediumProficiency)
                                   .value<Song::Proficiency>());
             s->setDailySet(settings.value(QStringLiteral("daily_set")).toDate());
@@ -142,7 +160,12 @@ void Muziko::saveSongs() const
         for (const auto &song : model->songs())
         {
             settings.beginGroup(song->name());
-            settings.setValue(QStringLiteral("last_practiced"), song->lastPracticed());
+
+            QVariantList practices;
+            for (const auto &practice : song->practices())
+                practices.push_back(practice);
+
+            settings.setValue(QStringLiteral("practices"), practices);
             settings.setValue(QStringLiteral("proficiency"), song->proficiency());
             settings.setValue(QStringLiteral("daily_set"), song->dailySet());
             settings.setValue(QStringLiteral("links"), song->links());

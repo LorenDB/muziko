@@ -37,11 +37,12 @@ public:
     explicit Song(QObject *parent = nullptr);
 
     QString name() const { return m_name; }
-    QDateTime lastPracticed() const { return m_lastPracticed; }
+    QDateTime lastPracticed() const { return m_practices.value(m_practices.size() - 1, {}); }
     QString lastPracticedString() const;
-    QDateTime practiceBeforeLast() const { return m_practiceBeforeLast; }
+    QDateTime practiceBeforeLast() const { return m_practices.value(m_practices.size() - 1, {}); }
+    QList<QDateTime> practices() const { return m_practices; }
     QDate dailySet() const { return m_dailySet; }
-    bool practicedToday() const { return m_lastPracticed.date() == QDate::currentDate(); }
+    bool practicedToday() const { return lastPracticed().date() == QDate::currentDate(); }
     Proficiency proficiency() const { return m_proficiency; }
     QStringList links() const { return m_links; }
 
@@ -49,7 +50,7 @@ public:
 
     void setName(const QString &newName);
     void setLastPracticed(const QDateTime &newLastPracticed);
-    void setPracticeBeforeLast(const QDateTime &newDateTime);
+    void setPractices(const QList<QDateTime> &practices);
     void setDailySet(const QDate &day);
     void setProficiency(Proficiency newProficiency);
     void setLinks(const QStringList &links);
@@ -61,15 +62,13 @@ public:
 signals:
     void nameChanged();
     void lastPracticedChanged();
-    void practiceBeforeLastChanged();
     void partOfTodaysSetChanged();
     void proficiencyChanged();
     void linksChanged();
 
 private:
     QString m_name;
-    QDateTime m_lastPracticed;
-    QDateTime m_practiceBeforeLast;
+    QList<QDateTime> m_practices;
     QDate m_dailySet;
     Proficiency m_proficiency;
     QStringList m_links;
