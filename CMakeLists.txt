@@ -148,6 +148,15 @@ install(TARGETS muziko
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+qt_generate_deploy_qml_app_script(
+    TARGET muziko
+    OUTPUT_SCRIPT deploy_script
+    MACOS_BUNDLE_POST_BUILD
+    NO_UNSUPPORTED_PLATFORM_ERROR
+    DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM
+)
+install(SCRIPT ${deploy_script})
+
 #####################
 # TESTS
 #####################
@@ -172,7 +181,7 @@ if(GENERATE_WINDOWS_INSTALLER)
     set(CPACK_IFW_PACKAGE_WIZARD_DEFAULT_WIDTH 640)
     set(CPACK_IFW_PACKAGE_WIZARD_DEFAULT_HEIGHT 480)
     set(CPACK_IFW_PACKAGE_WIZARD_STYLE "Modern")
-    set(CPACK_IFW_TARGET_DIRECTORY "@ApplicationsDirUser@/Loren Burkholder")
+    set(CPACK_IFW_TARGET_DIRECTORY "@ApplicationsDirUser@/Muziko")
     if(UNIX AND NOT APPLE)
         set(CPACK_IFW_TARGET_DIRECTORY "~/.local/${CPACK_PACKAGE_INSTALL_DIRECTORY}")
     endif()
@@ -187,14 +196,7 @@ if(GENERATE_WINDOWS_INSTALLER)
     set(CPACK_IFW_PACKAGE_RUN_PROGRAM "@TargetDir@/bin/muziko")
     set(CPACK_IFW_PACKAGE_CONTROL_SCRIPT "${CMAKE_SOURCE_DIR}/installer/controller.qs")
 
-    if(WIN32)
-        # set up windeployqt
-        find_program(WINDEPLOYQT windeployqt HINTS "${_qt_bin_dir}")
-        set(WINDEPLOYQT_COMPONENT "${PROJECT_NAME}")
-        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/windeployqt.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/windeployqt.cmake" @ONLY)
-        set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_CURRENT_BINARY_DIR}/windeployqt.cmake")
-    endif()
-
+    include(InstallRequiredSystemLibraries)
     include(CPack)
     include(CPackIFW)
 
