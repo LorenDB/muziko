@@ -23,6 +23,7 @@ if(RUN_CLANG_TIDY)
         # Remove these checks because in the latest clang-tidy they go berserk over Qt headers
         -checks=-llvmlibc-restrict-system-libc-cleaners,-misc-include-cleaner;
         -header-filter=.;
+        -warnings-as-errors=*;
     )
 endif()
 
