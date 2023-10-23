@@ -198,15 +198,15 @@ if(GENERATE_WINDOWS_INSTALLER)
     include(CPack)
     include(CPackIFW)
 
-    cpack_add_component(TimeLight
+    cpack_add_component(muziko
         DISPLAY_NAME "${PROJECT_NAME}"
-        DESCRIPTION "A button for controlling time tracker services from your system tray."
+        DESCRIPTION "Practice all your musical instruments using spaced repetition"
         REQUIRED
     )
 
-    cpack_ifw_configure_component(TimeLight
+    cpack_ifw_configure_component(muziko
         FORCED_INSTALLATION
-        LICENSES "License" LICENSE
+        LICENSES "GPL 3.0" LICENSES/GPL-3.0-or-later.txt
         SCRIPT "${CMAKE_SOURCE_DIR}/installer/components.qs"
         USER_INTERFACES "${CMAKE_SOURCE_DIR}/installer/pages/InstallType.ui"
     )
