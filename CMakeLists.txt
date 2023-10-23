@@ -14,7 +14,8 @@ option(RUN_CLANG_TIDY "Run clang-tidy checks at build time." OFF)
 set(muziko_VERSION_STR "${muziko_VERSION_MAJOR}.${muziko_VERSION_MINOR}.${muziko_VERSION_PATCH}")
 configure_file(cmake/MuzikoVersion.h.in cpp/MuzikoVersion.h)
 
-set(CMAKE_CXX_STANDARD 20)
+# TODO: change this to 20 as soon as Apple Clang supports concepts
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
