@@ -7,6 +7,8 @@
 
 #include <QSettings>
 
+#include "Settings.h"
+
 #ifdef Q_OS_ANDROID
     #include <QCoreApplication>
     #include <QJniEnvironment>
@@ -90,9 +92,9 @@ void Muziko::loadSongs()
 
     QSettings settings;
 
-    QString settingsVersion = settings.value(QStringLiteral("settings_version")).toString();
+    QString settingsVersion = settings.value(SettingsKeys::SETTINGS_VERSION).toString();
 
-    settings.beginGroup(QStringLiteral("instruments"));
+    settings.beginGroup(SettingsKeys::INSTRUMENTS);
     const auto instruments = settings.childGroups();
     for (const auto &instrument : instruments)
     {
@@ -110,21 +112,21 @@ void Muziko::loadSongs()
             // safely (especially given the small user base, which means that there is a low chance of users missing an
             // update). However, it's always better safe than sorry, so maybe it should stick around for a little longer than
             // that.
-            if (settingsVersion == QStringLiteral("0.1.0") && !settings.contains(QStringLiteral("practices")))
-                s->setLastPracticed(settings.value(QStringLiteral("last_practiced")).toDateTime());
+            if (settingsVersion == QStringLiteral("0.1.0") && !settings.contains(SettingsKeys::PRACTICES))
+                s->setLastPracticed(settings.value(SettingsKeys::LAST_PRACTICED).toDateTime());
             else
             {
-                auto practiceVariant = settings.value(QStringLiteral("practices")).toList();
+                auto practiceVariant = settings.value(SettingsKeys::PRACTICES).toList();
                 QList<QDateTime> practices;
                 for (const auto &p : practiceVariant)
                     practices.append(p.toDateTime());
                 s->setPractices(practices);
             }
 
-            s->setProficiency(settings.value(QStringLiteral("proficiency"), Song::Proficiency::MediumProficiency)
-                                  .value<Song::Proficiency>());
-            s->setDailySet(settings.value(QStringLiteral("daily_set")).toDate());
-            s->setLinks(settings.value(QStringLiteral("links")).toStringList());
+            s->setProficiency(
+                settings.value(SettingsKeys::PROFICIENCY, Song::Proficiency::MediumProficiency).value<Song::Proficiency>());
+            s->setDailySet(settings.value(SettingsKeys::DAILY_SET).toDate());
+            s->setLinks(settings.value(SettingsKeys::LINKS).toStringList());
             settings.endGroup(); // song
             model->addSong(s);
         }
@@ -140,7 +142,7 @@ void Muziko::loadSongs()
     settings.endGroup(); // instruments
 
     m_currentModel = -1;
-    setCurrentInstrument(settings.value("last_used_instrument").toString());
+    setCurrentInstrument(settings.value(SettingsKeys::LAST_USED_INSTRUMENT).toString());
     if (m_currentModel == -1 && m_songsModels.size() > 0)
         setCurrentInstrument(m_songsModels[0]->instrument());
 
@@ -150,7 +152,7 @@ void Muziko::loadSongs()
 void Muziko::saveSongs() const
 {
     QSettings settings;
-    settings.beginGroup(QStringLiteral("instruments"));
+    settings.beginGroup(SettingsKeys::INSTRUMENTS);
     settings.remove("");
     for (const auto model : m_songsModels)
     {
@@ -165,10 +167,10 @@ void Muziko::saveSongs() const
             for (const auto &practice : song->practices())
                 practices.push_back(practice);
 
-            settings.setValue(QStringLiteral("practices"), practices);
-            settings.setValue(QStringLiteral("proficiency"), song->proficiency());
-            settings.setValue(QStringLiteral("daily_set"), song->dailySet());
-            settings.setValue(QStringLiteral("links"), song->links());
+            settings.setValue(SettingsKeys::PRACTICES, practices);
+            settings.setValue(SettingsKeys::PROFICIENCY, song->proficiency());
+            settings.setValue(SettingsKeys::DAILY_SET, song->dailySet());
+            settings.setValue(SettingsKeys::LINKS, song->links());
             settings.endGroup(); // song.name
         }
         settings.endGroup(); // model->instrument()
@@ -202,7 +204,7 @@ void Muziko::setCurrentInstrument(const QString &name)
             m_filter = new SongsFilterModel{m_songsModels[i]};
             emit songsChanged();
             QSettings settings;
-            settings.setValue("last_used_instrument", m_songsModels[i]->instrument());
+            settings.setValue(SettingsKeys::LAST_USED_INSTRUMENT, m_songsModels[i]->instrument());
             break;
         }
     }

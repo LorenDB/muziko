@@ -59,15 +59,15 @@ void Settings::load()
 {
     QSettings settings;
 
-    m_dailySetSize = settings.value(QStringLiteral("daily_set_size"), 5).toInt();
+    m_dailySetSize = settings.value(SettingsKeys::DAILY_SET_SIZE, 5).toInt();
 }
 
 void Settings::save() const
 {
     QSettings settings;
 
-    settings.setValue(QStringLiteral("settings_version"), MUZIKO_VERSION_STR);
-    settings.setValue(QStringLiteral("daily_set_size"), m_dailySetSize);
+    settings.setValue(SettingsKeys::SETTINGS_VERSION, MUZIKO_VERSION_STR);
+    settings.setValue(SettingsKeys::DAILY_SET_SIZE, m_dailySetSize);
 }
 
 int Settings::dailySetSize() const

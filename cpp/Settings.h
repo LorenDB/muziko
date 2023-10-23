@@ -8,6 +8,19 @@
 #include <QObject>
 #include <QQmlEngine>
 
+namespace SettingsKeys
+{
+    constexpr auto DAILY_SET_SIZE = "daily_set_size";
+    constexpr auto SETTINGS_VERSION = "settings_version";
+    constexpr auto INSTRUMENTS = "instruments";
+    constexpr auto LAST_PRACTICED = "last_practiced";
+    constexpr auto PRACTICES = "practices";
+    constexpr auto PROFICIENCY = "proficiency";
+    constexpr auto DAILY_SET = "daily_set";
+    constexpr auto LINKS = "links";
+    constexpr auto LAST_USED_INSTRUMENT = "last_used_instrument";
+} // namespace SettingsKeys
+
 class Settings : public QObject
 {
     Q_OBJECT
