@@ -16,7 +16,7 @@ on:
 jobs:
   macos:
     name: macOS desktop
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       fail-fast: false
 
