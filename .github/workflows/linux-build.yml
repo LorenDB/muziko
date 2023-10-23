@@ -62,8 +62,8 @@ jobs:
 
       - name: Upload release package
         if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Linux package
-          path: muziko-*-x86_64.AppImage
+          path: muziko*.AppImage
           retention-days: 7 # if it's needed more than a week later, we can just rerun the build manually
