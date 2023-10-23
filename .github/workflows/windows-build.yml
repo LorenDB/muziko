@@ -41,7 +41,7 @@ jobs:
 
       - name: Build
         env:
-          CREATE_RELEASE_PACKAGE: ${{ (github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v')) && '-DGENERATE_INSTALLER=ON' || '-DGENERATE_INSTALLER=OFF' }}
+          CREATE_RELEASE_PACKAGE: ${{ (github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v')) && '-DGENERATE_WINDOWS_INSTALLER=ON' || '-DGENERATE_WINDOWS_INSTALLER=OFF' }}
           CMAKE_TARGETS: ${{ (github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v')) && '--target package' || '--target ALL_BUILD' }}
         run: |
           mkdir build && cd build
