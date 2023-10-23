@@ -8,9 +8,9 @@
 #include <QSettings>
 
 #ifdef Q_OS_ANDROID
-#include <QJniEnvironment>
-#include <QJniObject>
-#include <QCoreApplication>
+    #include <QCoreApplication>
+    #include <QJniEnvironment>
+    #include <QJniObject>
 #endif
 
 Muziko::Muziko(QObject *parent)

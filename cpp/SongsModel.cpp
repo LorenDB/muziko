@@ -220,10 +220,10 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
         QDateTime::currentDateTime().msecsTo(QDateTime{QDate::currentDate().addDays(1), QTime{}}) + 5);
     m_beginningOfDayUpdate.setSingleShot(true);
     m_beginningOfDayUpdate.callOnTimeout([this] {
-       rebuildMappings();
-       m_beginningOfDayUpdate.setInterval(
-           QDateTime::currentDateTime().msecsTo(QDateTime{QDate::currentDate().addDays(1), QTime{}}) + 5);
-       m_beginningOfDayUpdate.start();
+        rebuildMappings();
+        m_beginningOfDayUpdate.setInterval(
+            QDateTime::currentDateTime().msecsTo(QDateTime{QDate::currentDate().addDays(1), QTime{}}) + 5);
+        m_beginningOfDayUpdate.start();
     });
     m_beginningOfDayUpdate.start();
 
