@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=muziko
+Exec=muziko
+Icon=muziko
+Comment=Practice your musical instruments
+GenericName=muziko
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=Qt;Education;

@@ -7,6 +7,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(muziko VERSION 0.1.0 LANGUAGES CXX)
 
+include(CMakeDependentOption)
+cmake_dependent_option(GENERATE_WINDOWS_INSTALLER "Generate a Windows installer." OFF WIN32 OFF)
+
 set(muziko_VERSION_STR "${muziko_VERSION_MAJOR}.${muziko_VERSION_MINOR}.${muziko_VERSION_PATCH}")
 configure_file(cmake/MuzikoVersion.h.in cpp/MuzikoVersion.h)
 
@@ -145,3 +148,56 @@ qt_add_executable(SongsFilterModelTest tests/SongsFilterModelTest.cpp ${MUZIKO_L
 target_include_directories(SongsFilterModelTest PRIVATE cpp)
 add_test(NAME SongsFilterModelTest COMMAND SongsFilterModelTest)
 target_link_libraries(SongsFilterModelTest PRIVATE Qt::Test Qt::Qml)
+
+if(GENERATE_WINDOWS_INSTALLER)
+    # Set up the installer
+    # https://www.ics.com/blog/revisiting-qt-installer-framework-cmake and https://cmake.org/cmake/help/latest/cpack_gen/ifw.html
+    # were very helpful in creating the installer code
+    set(CPACK_GENERATOR "IFW")
+    set(CPACK_IFW_PACKAGE_NAME "${PROJECT_NAME}")
+    set(CPACK_PACKAGE_VENDOR "Loren Burkholder")
+    set(CPACK_PACKAGE_VERSION ${Muziko_VERSION_STR})
+    set(CPACK_IFW_PACKAGE_TITLE ${CPACK_IFW_PACKAGE_NAME})
+    set(CPACK_IFW_PRODUCT_URL "https://github.com/LorenDB/muziko")
+    set(CPACK_IFW_PACKAGE_WIZARD_DEFAULT_WIDTH 640)
+    set(CPACK_IFW_PACKAGE_WIZARD_DEFAULT_HEIGHT 480)
+    set(CPACK_IFW_PACKAGE_WIZARD_STYLE "Modern")
+    set(CPACK_IFW_TARGET_DIRECTORY "@ApplicationsDirUser@/Loren Burkholder")
+    if(UNIX AND NOT APPLE)
+        set(CPACK_IFW_TARGET_DIRECTORY "~/.local/${CPACK_PACKAGE_INSTALL_DIRECTORY}")
+    endif()
+    if(WIN32)
+        set(CPACK_IFW_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/icon.ico")
+    elseif(APPLE)
+        set(CPACK_IFW_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/icon.icns")
+    endif()
+    set(CPACK_IFW_PACKAGE_WINDOW_ICON "${CMAKE_SOURCE_DIR}/installer/icons/WindowIcon.png")
+    set(CPACK_IFW_PACKAGE_LOGO "${CMAKE_SOURCE_DIR}/installer/icons/Logo.png")
+    set(CPACK_IFW_PACKAGE_START_MENU_DIRECTORY "")
+    set(CPACK_IFW_PACKAGE_RUN_PROGRAM "@TargetDir@/bin/muziko")
+    set(CPACK_IFW_PACKAGE_CONTROL_SCRIPT "${CMAKE_SOURCE_DIR}/installer/controller.qs")
+
+    if(WIN32)
+        # set up windeployqt
+        find_program(WINDEPLOYQT windeployqt HINTS "${_qt_bin_dir}")
+        set(WINDEPLOYQT_COMPONENT "${PROJECT_NAME}")
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/windeployqt.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/windeployqt.cmake" @ONLY)
+        set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_CURRENT_BINARY_DIR}/windeployqt.cmake")
+    endif()
+
+    include(CPack)
+    include(CPackIFW)
+
+    cpack_add_component(TimeLight
+        DISPLAY_NAME "${PROJECT_NAME}"
+        DESCRIPTION "A button for controlling time tracker services from your system tray."
+        REQUIRED
+    )
+
+    cpack_ifw_configure_component(TimeLight
+        FORCED_INSTALLATION
+        LICENSES "License" LICENSE
+        SCRIPT "${CMAKE_SOURCE_DIR}/installer/components.qs"
+        USER_INTERFACES "${CMAKE_SOURCE_DIR}/installer/pages/InstallType.ui"
+    )
+endif()
