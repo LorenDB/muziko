@@ -48,11 +48,11 @@ jobs:
           plugins: qt appimage
           dir: ${{ github.workspace }}
 
-      - name: Install FUSE
+      - name: Install deploy dependencies
         if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
         run: |
           sudo apt-add-repository universe
-          sudo apt install libfuse2 -y
+          sudo apt install libfuse2 libxcb-cursor0 -y
 
       - name: Build release package
         if: ${{ github.event.inputs.packageRelease || startsWith(github.ref, 'refs/tags/v') }}
