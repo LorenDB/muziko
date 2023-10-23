@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    // Prime the settings singleton
-    Settings::instance();
+    app.connect(&app, &QGuiApplication::aboutToQuit, Settings::instance(), &Settings::save);
 
     QQmlApplicationEngine engine;
     QObject::connect(
