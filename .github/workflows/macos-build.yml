@@ -61,7 +61,7 @@ jobs:
           mkdir release_dir
           cd release_dir
           cp -r ../build/muziko.app .
-          macdeployqt muziko.app -dmg
+          macdeployqt --qmldir qml muziko.app -dmg
           cd ..
 
       - name: Upload release package
