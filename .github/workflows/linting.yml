@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2023 Loren Burkholder <computersemiexpert@outlook.com>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: Linting
+
+on:
+  push
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      # - name: Install Qt
+      #   uses: jurplel/install-qt-action@v3
+      #   with:
+      #     version: '6.5.*'
+      #     cache: true
+      #     modules: 'qtmultimedia'
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      # - name: Build
+      #   run: |
+      #     mkdir build && cd build
+      #     cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ ..
+      #     cmake --build . --config RelWithDebInfo
+      #     cd ..
+
+      - name: Check clang-format
+        run: |
+          ./format.sh
+
+      - name: Install reuse
+        run: |
+          sudo apt-add-repository universe
+          sudo apt install reuse -y
+
+      - name: Check for SPDX compliance
+        run: |
+          reuse lint
