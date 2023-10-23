@@ -31,8 +31,9 @@ Page {
             value: 100
             stepSize: 1
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.preferredWidth: height
+            Layout.maximumWidth: metronomeRoot.width - 140 - padding
             Layout.margins: 30
             onPressedChanged: {
                 if (pressed)
