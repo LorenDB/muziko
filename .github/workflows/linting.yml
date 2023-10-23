@@ -15,24 +15,24 @@ jobs:
       fail-fast: false
 
     steps:
-      # - name: Install Qt
-      #   uses: jurplel/install-qt-action@v3
-      #   with:
-      #     version: '6.5.*'
-      #     cache: true
-      #     modules: 'qtmultimedia'
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.*'
+          cache: true
+          modules: 'qtmultimedia'
 
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
 
-      # - name: Build
-      #   run: |
-      #     mkdir build && cd build
-      #     cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ ..
-      #     cmake --build . --config RelWithDebInfo
-      #     cd ..
+      - name: Build and check clang-tidy
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ -DRUN_CLANG_TIDY=ON ..
+          cmake --build . --config RelWithDebInfo
+          cd ..
 
       - name: Check clang-format
         run: |

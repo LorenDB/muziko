@@ -9,6 +9,7 @@ project(muziko VERSION 0.1.0 LANGUAGES CXX)
 
 include(CMakeDependentOption)
 cmake_dependent_option(GENERATE_WINDOWS_INSTALLER "Generate a Windows installer." OFF WIN32 OFF)
+option(RUN_CLANG_TIDY "Run clang-tidy checks at build time." OFF)
 
 set(muziko_VERSION_STR "${muziko_VERSION_MAJOR}.${muziko_VERSION_MINOR}.${muziko_VERSION_PATCH}")
 configure_file(cmake/MuzikoVersion.h.in cpp/MuzikoVersion.h)
@@ -16,6 +17,14 @@ configure_file(cmake/MuzikoVersion.h.in cpp/MuzikoVersion.h)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+if(RUN_CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy
+        # Remove these checks because in the latest clang-tidy they go berserk over Qt headers
+        -checks=-llvmlibc-restrict-system-libc-cleaners,-misc-include-cleaner;
+        -header-filter=.;
+    )
+endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Multimedia Network Qml Quick QuickControls2 Test)
 qt_standard_project_setup(REQUIRES 6.5)
