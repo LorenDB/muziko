@@ -25,6 +25,11 @@ When you start Muziko, you will need to enter the name of your instrument. Once 
 
 Muziko also lets you store links to aid your practice; for example, you might save a link to a jam track YouTube video or to an online learning platform for each song.
 
+## Features
+
+- A built in metronome to help you practice
+- Get rewarded with confetti when you play all your songs
+
 ## Get the app
 
 Muziko is available for Android devices (and Chromebooks) on the [Google Play Store](https://play.google.com/store/apps/details?id=dev.lorendb.muziko).
