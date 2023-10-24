@@ -5,7 +5,7 @@
 
 # basic cmake setup
 cmake_minimum_required(VERSION 3.16)
-project(muziko VERSION 0.1.0 LANGUAGES CXX)
+project(muziko VERSION 0.1.1 LANGUAGES CXX)
 
 include(CMakeDependentOption)
 cmake_dependent_option(GENERATE_WINDOWS_INSTALLER "Generate a Windows installer." OFF WIN32 OFF)
