@@ -35,7 +35,7 @@ public:
         auto *networkManager = new QNetworkAccessManager{this};
         QNetworkRequest req{url};
         auto rep = networkManager->get(req);
-        connect(rep, &QNetworkReply::finished, this, [=] {
+        connect(rep, &QNetworkReply::finished, this, [=, this] {
             if (rep->error() == QNetworkReply::NoError)
             {
                 auto data = rep->readAll();
