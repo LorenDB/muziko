@@ -46,7 +46,7 @@ jobs:
         run: |
           mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo $env:CREATE_RELEASE_PACKAGE ..
-          cmake --build . --config RelWithDebInfo $env:CMAKE_TARGETS
+          cmake --build . --config RelWithDebInfo $env:CMAKE_TARGETS -j $env:NUMBER_OF_PROCESSORS
           cd ..
 
       - name: Upload binary

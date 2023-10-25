@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ ..
-          cmake --build . --config RelWithDebInfo
+          cmake --build . --config RelWithDebInfo -j $(nproc)
           cd ..
 
       # now we can deploy the release if necessary

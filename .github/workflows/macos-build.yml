@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
-          cmake --build . --config RelWithDebInfo
+          cmake --build . --config RelWithDebInfo -j $(sysctl -n hw.logicalcpu)
           cd ..
 
       # If Apple didn't insist on bundling apps as folders, this wouldn't be necessary; however, this is done to ensure that the .app folder remains intact
