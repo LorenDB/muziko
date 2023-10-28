@@ -296,13 +296,20 @@ SongsFilterModel::SongsFilterModel(SongsModel *parent)
                             }
                         }
 
-                        if (std::all_of(m_mappings.begin(), m_mappings.end(), [this](const int idx) {
-                                return m_model->data(m_model->index(idx), SongsModel::SongObject)
-                                           .value<Song *>()
-                                           ->lastPracticed()
-                                           .date() == QDate::currentDate();
-                            }))
-                            emit dailySetDone();
+                        for (int i = left.row(); i <= right.row(); ++i)
+                        {
+                            if (m_mappings.contains(i))
+                            {
+                                if (std::all_of(m_mappings.begin(), m_mappings.end(), [this](const int idx) {
+                                        return m_model->data(m_model->index(idx), SongsModel::SongObject)
+                                                   .value<Song *>()
+                                                   ->lastPracticed()
+                                                   .date() == QDate::currentDate();
+                                    }))
+                                    emit dailySetDone();
+                                break;
+                            }
+                        }
                         break;
                     case SongsModel::ProficiencyValue:
                     case SongsModel::SongObject:
