@@ -101,6 +101,7 @@ public:
     Q_INVOKABLE void addSong(const QString &name, Song::Proficiency proficiency);
     Q_INVOKABLE void addSong(Song *song);
     Q_INVOKABLE void removeSong(const QString &name);
+    Q_INVOKABLE bool containsSong(const QString &name);
 
     const QList<Song *> &songs() const { return m_songs; }
 

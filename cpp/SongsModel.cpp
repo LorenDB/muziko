@@ -134,13 +134,17 @@ void SongsModel::setInstrument(const QString &instrument)
 void SongsModel::addSong(const QString &name, Song::Proficiency proficiency)
 {
     auto s = new Song{this};
-    s->setName(name);
+    s->setName(name.simplified());
     s->setProficiency(proficiency);
     addSong(s);
 }
 
 void SongsModel::addSong(Song *song)
 {
+    for (const auto s : m_songs)
+        if (s->name() == song->name())
+            return;
+
     beginInsertRows({}, m_songs.size(), m_songs.size());
     m_songs.push_back(song);
     endInsertRows();
@@ -174,6 +178,14 @@ void SongsModel::removeSong(const QString &name)
             break;
         }
     }
+}
+
+bool SongsModel::containsSong(const QString &name)
+{
+    for (const auto song : m_songs)
+        if (song->name() == name || song->name() == name.simplified())
+            return true;
+    return false;
 }
 
 QHash<int, QByteArray> SongsModel::roleNames() const

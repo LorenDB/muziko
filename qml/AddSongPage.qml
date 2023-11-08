@@ -47,6 +47,15 @@ Page {
             Layout.columnSpan: 2
         }
 
+        Label {
+            text: qsTr("A song called \"%1\" already exists in your library").arg(name.text)
+            color: Material.color(Material.Red)
+            wrapMode: Label.WordWrap
+            visible: Muziko.songs.containsSong(name.text)
+            Layout.columnSpan: 2
+            Layout.alignment: Qt.AlignRight
+        }
+
         RowLayout {
             Layout.columnSpan: 2
             spacing: 10
@@ -54,7 +63,7 @@ Page {
             Item { Layout.fillWidth: true }
 
             Button {
-                enabled: name.text !== ""
+                enabled: name.text !== "" && !Muziko.songs.containsSong(name.text)
                 text: qsTr("OK")
                 onClicked: {
                     Muziko.songs.addSong(name.text, proficiency.value)
