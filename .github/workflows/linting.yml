@@ -30,8 +30,8 @@ jobs:
       - name: Build and check clang-tidy
         run: |
           mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ -DRUN_CLANG_TIDY=ON ..
-          cmake --build . --config RelWithDebInfo -j $(nproc)
+          cmake -DRUN_CLANG_TIDY=ON ..
+          cmake --build . -j $(nproc)
           cd ..
 
       - name: Check clang-format
