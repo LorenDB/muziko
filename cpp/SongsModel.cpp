@@ -414,7 +414,7 @@ void SongsFilterModel::rebuildMappings()
         high.removeIf([](Song *song) { return song->proficiency() != Song::HighProficiency; });
         auto medNeedsPracticed = med;
         medNeedsPracticed.removeIf(
-                    [getPracticeDate](Song *song) { return getPracticeDate(song).daysTo(QDate::currentDate()) < 3; });
+            [getPracticeDate](Song *song) { return getPracticeDate(song).daysTo(QDate::currentDate()) < 3; });
         auto otherMedAndHigh = med + high;
         otherMedAndHigh.removeIf([getPracticeDate](Song *song) {
             return song->proficiency() == Song::MediumProficiency && getPracticeDate(song).daysTo(QDate::currentDate()) >= 3;
