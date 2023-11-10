@@ -11,6 +11,7 @@
 namespace SettingsKeys
 {
     constexpr auto DAILY_SET_SIZE = "daily_set_size";
+    constexpr auto MAPPINGS_CALCULATED_FOR_SET_SIZE = "mappings_calculated_for_set_size";
     constexpr auto SETTINGS_VERSION = "settings_version";
     constexpr auto INSTRUMENTS = "instruments";
     constexpr auto LAST_PRACTICED = "last_practiced";
@@ -38,18 +39,23 @@ public:
     void load();
     void save() const;
 
-    int dailySetSize() const;
+    int dailySetSize() const { return m_dailySetSize; }
+    int mappingsCalculatedForSetSize() const { return m_mappingsCalculatedForSetSize; }
+
     void setDailySetSize(int dailySetSize);
+    void setMappingsCalculatedForSetSize(int setSize);
 
     Q_INVOKABLE void backup() const;
     Q_INVOKABLE void restore();
 
 signals:
     void dailySetSizeChanged();
+    void mappingsCalculatedForSetSizeChanged();
 
 private:
     explicit Settings(QObject *parent = nullptr);
     static inline Settings *s_instance;
 
     int m_dailySetSize;
+    int m_mappingsCalculatedForSetSize;
 };

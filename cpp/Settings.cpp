@@ -60,6 +60,7 @@ void Settings::load()
     QSettings settings;
 
     m_dailySetSize = settings.value(SettingsKeys::DAILY_SET_SIZE, 5).toInt();
+    m_mappingsCalculatedForSetSize = settings.value(SettingsKeys::MAPPINGS_CALCULATED_FOR_SET_SIZE, m_dailySetSize).toInt();
 }
 
 void Settings::save() const
@@ -68,11 +69,7 @@ void Settings::save() const
 
     settings.setValue(SettingsKeys::SETTINGS_VERSION, MUZIKO_VERSION_STR);
     settings.setValue(SettingsKeys::DAILY_SET_SIZE, m_dailySetSize);
-}
-
-int Settings::dailySetSize() const
-{
-    return m_dailySetSize;
+    settings.setValue(SettingsKeys::MAPPINGS_CALCULATED_FOR_SET_SIZE, m_mappingsCalculatedForSetSize);
 }
 
 void Settings::setDailySetSize(int dailySetSize)
@@ -81,6 +78,14 @@ void Settings::setDailySetSize(int dailySetSize)
         return;
     m_dailySetSize = dailySetSize;
     emit dailySetSizeChanged();
+}
+
+void Settings::setMappingsCalculatedForSetSize(int setSize)
+{
+    if (m_mappingsCalculatedForSetSize == setSize)
+        return;
+    m_mappingsCalculatedForSetSize = setSize;
+    emit mappingsCalculatedForSetSizeChanged();
 }
 
 void Settings::backup() const

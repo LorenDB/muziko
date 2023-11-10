@@ -5,19 +5,20 @@
 
 #include <QTest>
 
+#include "Settings.h"
 #include "SongsModel.h"
 
 namespace
 {
-    const auto SONG1_NAME = QStringLiteral("Hidden: low, today");
-    const auto SONG2_NAME = QStringLiteral("1. low, yesterday");
-    const auto SONG3_NAME = QStringLiteral("2. low, yesterday");
-    const auto SONG4_NAME = QStringLiteral("Hidden: med, today");
-    const auto SONG5_NAME = QStringLiteral("Hidden: med, yesterday");
-    const auto SONG6_NAME = QStringLiteral("3. med, four days ago");
-    const auto SONG7_NAME = QStringLiteral("Hidden: high, today");
-    const auto SONG8_NAME = QStringLiteral("5. high, one week ago");
-    const auto SONG9_NAME = QStringLiteral("4. high, 30 days ago");
+    const auto SONG1_NAME = QStringLiteral("Song 1: low, today");
+    const auto SONG2_NAME = QStringLiteral("Song 2: low, yesterday");
+    const auto SONG3_NAME = QStringLiteral("Song 3: low, yesterday");
+    const auto SONG4_NAME = QStringLiteral("Song 4: med, today");
+    const auto SONG5_NAME = QStringLiteral("Song 5: med, yesterday");
+    const auto SONG6_NAME = QStringLiteral("Song 6: med, four days ago");
+    const auto SONG7_NAME = QStringLiteral("Song 7: high, today");
+    const auto SONG8_NAME = QStringLiteral("Song 8: high, one week ago");
+    const auto SONG9_NAME = QStringLiteral("Song 9: high, 30 days ago");
 }
 
 class SongsFilterModelTest : public QObject
@@ -25,6 +26,11 @@ class SongsFilterModelTest : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase()
+    {
+        Settings::instance()->setDailySetSize(5);
+    }
+
     void init()
     {
         m_model = new SongsModel{this};
@@ -99,9 +105,24 @@ private slots:
 
         QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), SONG2_NAME);
         QCOMPARE(m_filter->data(m_filter->index(1), SongsModel::Roles::Name).toString(), SONG3_NAME);
-        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG6_NAME);
-        QCOMPARE(m_filter->data(m_filter->index(3), SongsModel::Roles::Name).toString(), SONG9_NAME);
-        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG8_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG5_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(3), SongsModel::Roles::Name).toString(), SONG6_NAME);
+        // song 1 is interpreted as part of today's set but already practiced
+        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG1_NAME);
+
+        Settings::instance()->setDailySetSize(7);
+        m_filter->rebuildMappings();
+
+        QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), SONG2_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(1), SongsModel::Roles::Name).toString(), SONG3_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG5_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(3), SongsModel::Roles::Name).toString(), SONG6_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG9_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(5), SongsModel::Roles::Name).toString(), SONG1_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(6), SongsModel::Roles::Name).toString(), SONG4_NAME);
+
+        Settings::instance()->setDailySetSize(5);
+        m_filter->rebuildMappings();
     }
 
     void testAddingSongs()
@@ -112,7 +133,13 @@ private slots:
         rickroll->setProficiency(Song::HighProficiency);
         m_model->addSong(rickroll);
 
-        testFilterOrder();
+        QVERIFY(m_filter->rowCount() == 5);
+
+        QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), SONG2_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(1), SongsModel::Roles::Name).toString(), SONG3_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG5_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(3), SongsModel::Roles::Name).toString(), SONG6_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG1_NAME);
 
         auto rushE = new Song{this};
         rushE->setName("Rush E");
@@ -122,17 +149,24 @@ private slots:
 
         QVERIFY(m_filter->rowCount() == 5);
 
-        QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), "Rush E");
-        QCOMPARE(m_filter->data(m_filter->index(1), SongsModel::Roles::Name).toString(), SONG2_NAME);
-        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG3_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), SONG2_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(1), SongsModel::Roles::Name).toString(), SONG3_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG5_NAME);
         QCOMPARE(m_filter->data(m_filter->index(3), SongsModel::Roles::Name).toString(), SONG6_NAME);
-        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG9_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG1_NAME);
     }
 
     void testRemovingSongs()
     {
-        m_model->removeSong("Hidden: med, today, yesterday");
-        testFilterOrder();
+        m_model->removeSong(SONG7_NAME);
+
+        QVERIFY(m_filter->rowCount() == 5);
+
+        QCOMPARE(m_filter->data(m_filter->index(0), SongsModel::Roles::Name).toString(), SONG2_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(1), SongsModel::Roles::Name).toString(), SONG3_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(2), SongsModel::Roles::Name).toString(), SONG5_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(3), SongsModel::Roles::Name).toString(), SONG6_NAME);
+        QCOMPARE(m_filter->data(m_filter->index(4), SongsModel::Roles::Name).toString(), SONG1_NAME);
     }
 
 private:

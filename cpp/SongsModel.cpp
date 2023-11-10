@@ -378,84 +378,83 @@ void SongsFilterModel::rebuildMappings()
     beginResetModel();
 
     m_mappings.clear();
-    decltype(m_mappings) alreadyPracticedMappings;
     const auto dailySetSize = Settings::instance()->dailySetSize();
 
     // if the user practiced this song earlier today as part of a set, we want to temporarily include that in the list so
     // we don't spam new songs on the list infinitely
-    auto getPracticeDate = [](Song *song) {
+    auto getPracticeDate = [](Song *song) -> QDate {
         return (song->dailySet() == QDate::currentDate() && song->lastPracticed().date() == QDate::currentDate() ?
-                    song->practiceBeforeLast() :
-                    song->lastPracticed());
+                    song->practiceBeforeLast().date() :
+                    song->lastPracticed().date());
     };
-
     auto sortedSongs = m_model->songs();
-    std::sort(sortedSongs.begin(), sortedSongs.end(), [&getPracticeDate](Song *lhs, Song *rhs) {
-        return getPracticeDate(lhs) < getPracticeDate(rhs);
-    });
 
-    auto low = sortedSongs;
-    low.removeIf([&getPracticeDate](Song *song) {
-        auto date = getPracticeDate(song);
-        return song->proficiency() != Song::LowProficiency ||
-               (date.isValid() && date.daysTo(QDateTime::currentDateTime()) <= 0);
-    });
-
-    int minDaysSinceMedPractice;
-    if (low.size() >= dailySetSize * 4 / 5 - 1)
-        minDaysSinceMedPractice = 4;
+    auto precalculatedDailySet = m_model->songs();
+    precalculatedDailySet.removeIf([](Song *song) { return song->dailySet() != QDate::currentDate(); });
+    if (precalculatedDailySet.size() == Settings::instance()->mappingsCalculatedForSetSize())
+        sortedSongs = precalculatedDailySet;
+    else if (sortedSongs.size() <= dailySetSize)
+        ; // we'll skip here to avoid more calculations
     else
-        minDaysSinceMedPractice = 3;
-    auto med = sortedSongs;
-    med.removeIf([&minDaysSinceMedPractice, &getPracticeDate](Song *song) {
-        auto date = getPracticeDate(song);
-        return song->proficiency() != Song::MediumProficiency ||
-               (date.isValid() && date.daysTo(QDateTime::currentDateTime()) < minDaysSinceMedPractice);
+    {
+        std::sort(sortedSongs.begin(), sortedSongs.end(), [&getPracticeDate](Song *lhs, Song *rhs) {
+            const auto lDate = getPracticeDate(lhs);
+            const auto rDate = getPracticeDate(rhs);
+            if (lDate == rDate)
+                return lhs->name() < rhs->name();
+            else
+                return lDate < rDate;
+        });
+
+        auto low = sortedSongs;
+        low.removeIf([](Song *song) { return song->proficiency() != Song::LowProficiency; });
+        auto med = sortedSongs;
+        med.removeIf([](Song *song) { return song->proficiency() != Song::MediumProficiency; });
+        auto high = sortedSongs;
+        high.removeIf([](Song *song) { return song->proficiency() != Song::HighProficiency; });
+        auto medNeedsPracticed = med;
+        medNeedsPracticed.removeIf(
+                    [getPracticeDate](Song *song) { return getPracticeDate(song).daysTo(QDate::currentDate()) < 3; });
+        auto otherMedAndHigh = med + high;
+        otherMedAndHigh.removeIf([getPracticeDate](Song *song) {
+            return song->proficiency() == Song::MediumProficiency && getPracticeDate(song).daysTo(QDate::currentDate()) >= 3;
+        });
+
+        sortedSongs.clear();
+
+        const auto numLowToAppend = std::min((int)low.size(), dailySetSize - 2);
+        for (int i = 0; i < numLowToAppend; ++i)
+            sortedSongs.append(low[i]);
+        const auto numMedToAppend = std::min(medNeedsPracticed.size(), dailySetSize - sortedSongs.size() - 1);
+        for (int i = 0; i < numMedToAppend; ++i)
+            sortedSongs.append(medNeedsPracticed[i]);
+        const auto numMedAndHighToAppend = std::min(otherMedAndHigh.size(), dailySetSize - sortedSongs.size());
+        for (int i = 0; i < numMedAndHighToAppend; ++i)
+            sortedSongs.append(otherMedAndHigh[i]);
+
+        for (const auto song : sortedSongs)
+            song->setDailySet(QDate::currentDate());
+    }
+
+    std::sort(sortedSongs.begin(), sortedSongs.end(), [getPracticeDate](Song *lhs, Song *rhs) {
+        const auto lDate = getPracticeDate(lhs);
+        const auto rDate = getPracticeDate(rhs);
+        if (lDate != rDate)
+        {
+            if (lDate == QDate::currentDate())
+                return false;
+            else if (rDate == QDate::currentDate())
+                return true;
+        }
+        if (lhs->proficiency() == rhs->proficiency())
+            return lhs->name() < rhs->name();
+        else
+            return lhs->proficiency() < rhs->proficiency();
     });
+    for (const auto &song : sortedSongs)
+        m_mappings.append(m_model->songs().indexOf(song));
 
-    auto high = sortedSongs;
-    high.removeIf([](Song *song) { return song->proficiency() != Song::HighProficiency; });
-
-    bool isDailySetSizeOverflowed = low.size() + med.size() >= dailySetSize;
-
-    if (high.size() > 0)
-    {
-        int numToAppend = std::min(
-            isDailySetSizeOverflowed ? std::min(dailySetSize / 5, 2) : dailySetSize - low.size() - med.size(), high.size());
-        for (int i = 0; i < numToAppend; ++i)
-        {
-            if (!high[i]->practicedToday())
-                m_mappings.append(m_model->songs().indexOf(high[i]));
-            else
-                alreadyPracticedMappings.append(m_model->songs().indexOf(high[i]));
-        }
-    }
-
-    if (med.size() > 0)
-    {
-        int numToAppend = isDailySetSizeOverflowed ? dailySetSize / 5 : med.size();
-        for (int i = numToAppend - 1; i >= 0; --i)
-        {
-            if (!med[i]->practicedToday())
-                m_mappings.prepend(m_model->songs().indexOf(med[i]));
-            else
-                alreadyPracticedMappings.prepend(m_model->songs().indexOf(med[i]));
-        }
-    }
-
-    if (low.size() > 0)
-        for (int i = std::min(low.size(), dailySetSize - m_mappings.size()) - 1; i >= 0; --i)
-        {
-            if (!low[i]->practicedToday())
-                m_mappings.prepend(m_model->songs().indexOf(low[i]));
-            else
-                alreadyPracticedMappings.prepend(m_model->songs().indexOf(low[i]));
-        }
-
-    m_mappings.append(alreadyPracticedMappings);
-
-    for (const auto i : m_mappings)
-        m_model->songs()[i]->setDailySet(QDate::currentDate());
+    Settings::instance()->setMappingsCalculatedForSetSize(dailySetSize);
 
     endResetModel();
 }
