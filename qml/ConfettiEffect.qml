@@ -13,7 +13,7 @@ Item {
 
     function pulseConfetti()
     {
-        confettiEmitter.pulse(effectRoot.height * 2)
+        confettiEmitter.pulse(effectRoot.height * 1.5)
     }
 
     function removeParticles()
