@@ -66,6 +66,33 @@ Page {
             }
         }
 
+        ItemDelegate {
+            Layout.fillWidth: true
+            implicitHeight: useAmoledThemeRow.height + 20
+
+            RowLayout {
+                id: useAmoledThemeRow
+
+                spacing: 10
+                anchors.fill: parent
+                anchors.margins: 10
+                height: useAmoledThemeSwitch.height
+
+                Label {
+                    text: qsTr("Use AMOLED theme")
+                    Layout.fillWidth: true
+                }
+
+                Switch {
+                    id: useAmoledThemeSwitch
+
+                    checked: MuzikoSettings.useAmoledTheme
+                    onCheckedChanged: MuzikoSettings.useAmoledTheme = checked
+                    Layout.alignment: Qt.AlignRight
+                }
+            }
+        }
+
         Item { Layout.fillHeight: true }
     }
 }

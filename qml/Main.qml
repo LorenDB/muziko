@@ -20,6 +20,7 @@ ApplicationWindow {
     Material.theme: Material.Dark
     Material.primary: Material.Blue
     Material.accent: Material.Teal
+    Material.background: MuzikoSettings.useAmoledTheme ? "#000000" : "#1B1A1E"
 
     Component.onCompleted: {
         if (Muziko.songs == null)

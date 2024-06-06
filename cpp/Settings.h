@@ -20,6 +20,7 @@ namespace SettingsKeys
     constexpr auto DAILY_SET = "daily_set";
     constexpr auto LINKS = "links";
     constexpr auto LAST_USED_INSTRUMENT = "last_used_instrument";
+    constexpr auto USE_AMOLED_THEME = "use_amoled_theme";
 } // namespace SettingsKeys
 
 class Settings : public QObject
@@ -29,6 +30,7 @@ class Settings : public QObject
     QML_SINGLETON
 
     Q_PROPERTY(int dailySetSize READ dailySetSize WRITE setDailySetSize NOTIFY dailySetSizeChanged FINAL)
+    Q_PROPERTY(bool useAmoledTheme READ useAmoledTheme WRITE setUseAmoledTheme NOTIFY useAmoledThemeChanged FINAL)
 
 public:
     ~Settings();
@@ -41,9 +43,11 @@ public:
 
     int dailySetSize() const { return m_dailySetSize; }
     int mappingsCalculatedForSetSize() const { return m_mappingsCalculatedForSetSize; }
+    bool useAmoledTheme() const { return m_useAmoledTheme; }
 
     void setDailySetSize(int dailySetSize);
     void setMappingsCalculatedForSetSize(int setSize);
+    void setUseAmoledTheme(bool useAmoledTheme);
 
     Q_INVOKABLE void backup() const;
     Q_INVOKABLE void restore();
@@ -51,6 +55,7 @@ public:
 signals:
     void dailySetSizeChanged();
     void mappingsCalculatedForSetSizeChanged();
+    void useAmoledThemeChanged();
 
 private:
     explicit Settings(QObject *parent = nullptr);
@@ -58,4 +63,5 @@ private:
 
     int m_dailySetSize;
     int m_mappingsCalculatedForSetSize;
+    bool m_useAmoledTheme;
 };

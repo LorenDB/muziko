@@ -61,6 +61,7 @@ void Settings::load()
 
     m_dailySetSize = settings.value(SettingsKeys::DAILY_SET_SIZE, 5).toInt();
     m_mappingsCalculatedForSetSize = settings.value(SettingsKeys::MAPPINGS_CALCULATED_FOR_SET_SIZE, m_dailySetSize).toInt();
+    m_useAmoledTheme = settings.value(SettingsKeys::USE_AMOLED_THEME, false).toBool();
 }
 
 void Settings::save() const
@@ -70,6 +71,7 @@ void Settings::save() const
     settings.setValue(SettingsKeys::SETTINGS_VERSION, MUZIKO_VERSION_STR);
     settings.setValue(SettingsKeys::DAILY_SET_SIZE, m_dailySetSize);
     settings.setValue(SettingsKeys::MAPPINGS_CALCULATED_FOR_SET_SIZE, m_mappingsCalculatedForSetSize);
+    settings.setValue(SettingsKeys::USE_AMOLED_THEME, m_useAmoledTheme);
 }
 
 void Settings::setDailySetSize(int dailySetSize)
@@ -86,6 +88,14 @@ void Settings::setMappingsCalculatedForSetSize(int setSize)
         return;
     m_mappingsCalculatedForSetSize = setSize;
     emit mappingsCalculatedForSetSizeChanged();
+}
+
+void Settings::setUseAmoledTheme(bool useAmoledTheme)
+{
+    if (m_useAmoledTheme == useAmoledTheme)
+        return;
+    m_useAmoledTheme = useAmoledTheme;
+    emit useAmoledThemeChanged();
 }
 
 void Settings::backup() const
