@@ -13,17 +13,17 @@ Page {
         anchors.fill: parent
         spacing: 0
 
-//        ItemDelegate {
-//            Layout.fillWidth: true
-//            onClicked: settingsStack.push(backupRestorePage)
+       ItemDelegate {
+           Layout.fillWidth: true
+           onClicked: settingsStack.push(backupRestorePage)
 
-//            Label {
-//                anchors.fill: parent
-//                anchors.margins: 10
-//                verticalAlignment: Label.AlignVCenter
-//                text: qsTr("Backup and restore")
-//            }
-//        }
+           Label {
+               anchors.fill: parent
+               anchors.margins: 10
+               verticalAlignment: Label.AlignVCenter
+               text: qsTr("Import/export all settings")
+           }
+       }
 
         ItemDelegate {
             Layout.fillWidth: true

@@ -62,6 +62,11 @@ void Settings::load()
     m_dailySetSize = settings.value(SettingsKeys::DAILY_SET_SIZE, 5).toInt();
     m_mappingsCalculatedForSetSize = settings.value(SettingsKeys::MAPPINGS_CALCULATED_FOR_SET_SIZE, m_dailySetSize).toInt();
     m_useAmoledTheme = settings.value(SettingsKeys::USE_AMOLED_THEME, false).toBool();
+
+    // in case we are loading new settings from file, we need to emit the signals to force updates to occur
+    emit dailySetSizeChanged();
+    emit mappingsCalculatedForSetSizeChanged();
+    emit useAmoledThemeChanged();
 }
 
 void Settings::save() const
@@ -98,34 +103,33 @@ void Settings::setUseAmoledTheme(bool useAmoledTheme)
     emit useAmoledThemeChanged();
 }
 
-void Settings::backup() const
+void Settings::backup(const QString &path) const
 {
+    const QString realPath = QUrl{path}.toLocalFile();
     save();
     Muziko::instance()->saveSongs();
 
-    const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/muziko-backup.ini";
-
-    if (!QFileInfo::exists(path))
+    if (!QFileInfo::exists(realPath))
     {
-        QDir().mkpath(QFileInfo(path).dir().path());
-        QFile f{path};
+        QDir().mkpath(QFileInfo(realPath).dir().path());
+        QFile f{realPath};
         f.open(QIODevice::WriteOnly);
         f.close();
     }
 
     QSettings settings;
-    QSettings backupSettings{path, QSettings::IniFormat};
+    QSettings backupSettings{realPath, QSettings::IniFormat};
     const auto keys = settings.allKeys();
     for (const auto &key : keys)
         backupSettings.setValue(key, settings.value(key));
 }
 
-void Settings::restore()
+void Settings::restore(const QString &path)
 {
-    const auto path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/muziko-backup.ini";
+    const QString realPath = QUrl{path}.toLocalFile();
 
     QSettings settings;
-    QSettings backupSettings{path, QSettings::IniFormat};
+    QSettings backupSettings{realPath, QSettings::IniFormat};
     settings.clear();
     const auto keys = backupSettings.allKeys();
     for (const auto &key : keys)

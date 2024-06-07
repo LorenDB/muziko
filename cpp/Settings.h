@@ -49,8 +49,8 @@ public:
     void setMappingsCalculatedForSetSize(int setSize);
     void setUseAmoledTheme(bool useAmoledTheme);
 
-    Q_INVOKABLE void backup() const;
-    Q_INVOKABLE void restore();
+    Q_INVOKABLE void backup(const QString &path) const;
+    Q_INVOKABLE void restore(const QString &path);
 
 signals:
     void dailySetSizeChanged();

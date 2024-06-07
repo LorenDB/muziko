@@ -7,6 +7,7 @@ import QtCore
 import QtQuick
 import QtQuick.Controls.Material
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import dev.lorendb.muziko
 
 Page {
@@ -18,28 +19,25 @@ Page {
 
         ItemDelegate {
             Layout.fillWidth: true
-            onClicked: {
-                MuzikoSettings.backup();
-                backupDialog.open();
-            }
+            onClicked: backupFileDialog.open()
 
             Label {
                 anchors.fill: parent
                 anchors.margins: 10
                 verticalAlignment: Label.AlignVCenter
-                text: qsTr("Backup songs and settings")
+                text: qsTr("Export everything to file")
             }
         }
 
         ItemDelegate {
             Layout.fillWidth: true
-            onClicked: restoreDialog.open()
+            onClicked: restoreFileDialog.open()
 
             Label {
                 anchors.fill: parent
                 anchors.margins: 10
                 verticalAlignment: Label.AlignVCenter
-                text: qsTr("Restore songs and settings")
+                text: qsTr("Import everything from file")
             }
         }
 
@@ -47,14 +45,14 @@ Page {
     }
 
     Dialog {
-        id: backupDialog
+        id: backupSuccessDialog
 
         anchors.centerIn: parent
         standardButtons: Dialog.Ok
 
         Label {
             anchors.fill: parent
-            text: qsTr("Your songs and settings have been backed up.")
+            text: qsTr("Your songs and settings have been exported.")
             wrapMode: Text.WordWrap
         }
     }
@@ -62,33 +60,69 @@ Page {
     Dialog {
         id: restoreDialog
 
+        property string fileUrl: ""
+
         anchors.centerIn: parent
         standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: {
-            MuzikoSettings.restore();
+            MuzikoSettings.restore(fileUrl);
             while (songsStack.depth > 1)
                 songsStack.pop();
             close();
-            restoreConfirmationDialog.open();
+            restoreSuccessDialog.open();
         }
 
         Label {
             anchors.fill: parent
-            text: qsTr("Are you sure you want to restore? Any existing songs or settings will be lost!")
+            text: qsTr("Are you sure you want to import these settings? Any existing songs or settings will be lost!")
             wrapMode: Text.WordWrap
         }
     }
 
     Dialog {
-        id: restoreConfirmationDialog
+        id: restoreSuccessDialog
 
         anchors.centerIn: parent
         standardButtons: Dialog.Ok
 
         Label {
             anchors.fill: parent
-            text: qsTr("Your songs and settings have been restored.")
+            text: qsTr("Your songs and settings have been imported.")
             wrapMode: Text.WordWrap
+        }
+    }
+
+    FileDialog {
+        id: backupFileDialog
+
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        currentFile: "muziko-backup.muziko"
+        fileMode: FileDialog.SaveFile
+        nameFilters: [qsTr("Muziko Backup Files (*.muziko)")]
+        defaultSuffix: "muziko"
+        onAccepted: {
+            var url = selectedFiles[0];
+            if (url !== "" && url !== null) {
+                MuzikoSettings.backup(url);
+                backupSuccessDialog.open();
+            }
+        }
+    }
+
+    FileDialog {
+        id: restoreFileDialog
+
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
+        currentFile: "muziko-backup.muziko"
+        fileMode: FileDialog.OpenFile
+        nameFilters: [qsTr("Muziko Backup Files (*.muziko)")]
+        defaultSuffix: "muziko"
+        onAccepted: {
+            var url = selectedFiles[0];
+            if (url !== "" && url !== null) {
+                restoreDialog.fileUrl = url;
+                restoreDialog.open();
+            }
         }
     }
 }
